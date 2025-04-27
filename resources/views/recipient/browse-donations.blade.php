@@ -4,7 +4,7 @@
 
 @section('content')
 
-<div class="container-fluid"> <div class="donations-form-container"> <div class="form-header"> <div class="d-flex justify-content-between align-items-center"> <h2 class="mb-0">Browse Available Donations</h2> <div class="badge bg-primary"> {{ $donations->total() }} Donations Available </div> </div> <p class="text-white-50 mb-0">Find and accept surplus food in your community</p> </div>
+<div class="container-fluid"> <div class="donations-form-container"> <div class="form-header"> <div class="d-flex justify-content-between align-items-center"> <h2 class="mb-0">Browse Available Donations</h2> <div class="badge bg-primary"> {{ $donations->total() }} Donations Available </div> </div> <p class="text-white-50 mb-0">Find and reserve surplus food in your community</p> </div>
     <div class="row">
         <div class="col-md-3">
             <div class="card border-0 shadow-sm mb-4">
@@ -64,7 +64,6 @@
                                     <th>Food Description</th>
                                     <th>Category</th>
                                     <th>Servings</th>
-                                    <th>Location</th>
                                     <th>Best Before</th>
                                     <th>Actions</th>
                                 </tr>
@@ -80,59 +79,21 @@
                                         </td>
                                         <td>{{ $donation->estimated_servings }}</td>
                                         <td>
-                                            <i class="fas fa-map-marker-alt me-2"></i>
-                                            {{ Str::limit($donation->pickup_location, 30) }}
-                                        </td>
-                                        <td>
                                             @php 
-                                                $bestBefore = is_string($donation->best_before) 
-                                                    ? \Carbon\Carbon::parse($donation->best_before) 
-                                                    : $donation->best_before;
-                                                
-                                                $daysLeft = now()->diffInDays($bestBefore, false);
+                                                $daysLeft = now()->diffInDays($donation->best_before, false);
                                             @endphp
                                             <span class="{{ $daysLeft <= 1 ? 'text-danger' : 'text-warning' }}">
-                                                {{ $bestBefore->format('d M Y') }}
+                                                {{ $donation->best_before->format('d M Y') }}
                                                 @if($daysLeft <= 1)
                                                     <small class="d-block">(Expiring Soon)</small>
                                                 @endif
                                             </span>
                                         </td>
                                         <td>
-                                            <div class="btn-group" role="group">
-                                                <button type="button" 
-                                                        class="btn btn-sm btn-outline-primary view-donation-btn"
-                                                        data-donation-details='@json([
-                                                            "id" => $donation->id,
-                                                            "food_description" => $donation->food_description,
-                                                            "food_category" => $foodCategories[$donation->food_category],
-                                                            "estimated_servings" => $donation->estimated_servings,
-                                                            "best_before" => $bestBefore->format('d M Y'),
-                                                            "donation_type" => ucfirst($donation->donation_type),
-                                                            "pickup_location" => $donation->pickup_location,
-                                                            "contact_number" => $donation->contact_number,
-                                                            "additional_instructions" => $donation->additional_instructions,
-                                                            "donor" => [
-                                                                "name" => $donation->donor->name,
-                                                                "email" => $donation->donor->email,
-                                                                "phone" => $donation->contact_number,
-                                                                "role" => ucfirst($donation->donor->role),
-                                                                "bio" => "A local donor committed to reducing food waste and supporting the community.",
-                                                                "avatar" => null,
-                                                                "total_donations" => 25,
-                                                                "total_servings" => 500,
-                                                                "rating" => 4.7,
-                                                                "impact_percentage" => 75
-                                                            ]
-                                                        ])'>
-                                                    <i class="fas fa-eye"></i>
-                                                </button>
-                                                <button type="button" 
-                                                        class="btn btn-sm btn-outline-success accept-donation-btn"
-                                                        data-donation-id="{{ $donation->id }}">
-                                                    <i class="fas fa-shopping-basket"></i>
-                                                </button>
-                                            </div>
+                                            <button type="button" class="btn btn-sm btn-primary reserve-btn" 
+                                                    data-donation-id="{{ $donation->id }}">
+                                                <i class="fas fa-shopping-basket me-2"></i>Reserve
+                                            </button>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -149,12 +110,16 @@
     </div>
 </div>
 </div>
-{{-- Include the Donation Details Modal --}}
-@include('recipient.donation-details-modal')
+{{-- Reservation Modal --}}
+
+<div class="modal fade" id="reservationModal" tabindex="-1"> <div class="modal-dialog"> <div class="modal-content"> <div class="modal-header"> <h5 class="modal-title">Reserve Donation</h5> <button type="button" class="btn-close" data-bs-dismiss="modal"></button> </div> <form id="reservationForm" method="POST"> @csrf <div class="modal-body"> <div class="mb-3"> <label class="form-label">Pickup Date</label> <input type="date" name="pickup_date" class="form-control" required min="{{ now()->format('Y-m-d') }}"> </div> <div class="mb-3"> <label class="form-label">Pickup Time</label> <input type="time" name="pickup_time" class="form-control" required> </div> </div> <div class="modal-footer"> <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button> <button type="submit" class="btn btn-primary">Confirm Reservation</button> </div> </form> </div> </div> </div> @endsection
+@section('styles')
+
+<style> .donations-form-container { background-color: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); } .form-header { background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%); color: white; padding: 20px; border-top-left-radius: 12px; border-top-right-radius: 12px; } </style>
 @endsection
 
 @section('scripts')
 
-<script> document.addEventListener('DOMContentLoaded', function() { // Replace 'claim-donation-btn' with 'accept-donation-btn' const acceptButtons = document.querySelectorAll('.accept-donation-btn'); const pickupRequestForm = document.getElementById('pickupRequestForm'); acceptButtons.forEach(button => { button.addEventListener('click', function() { const donationId = this.dataset.donationId; pickupRequestForm.action = `/recipient/donations/${donationId}/reserve`; new bootstrap.Modal(document.getElementById('pickupRequestModal')).show(); }); }); }); </script>
+<script> document.addEventListener('DOMContentLoaded', function() { const reservationModal = new bootstrap.Modal(document.getElementById('reservationModal')); const reservationForm = document.getElementById('reservationForm'); const reserveButtons = document.querySelectorAll('.reserve-btn'); reserveButtons.forEach(button => { button.addEventListener('click', function() { const donationId = this.dataset.donationId; reservationForm.action = `/recipient/donations/${donationId}/reserve`; reservationModal.show(); }); }); }); </script>
 @endsection
 
