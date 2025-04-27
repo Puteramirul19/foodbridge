@@ -6,18 +6,23 @@ use App\Models\Donation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Foundation\Validation\ValidatesRequests;
 
 class DonationController extends Controller
 {
+    /**
+     * Display the create donation form
+     */
     public function create()
     {
         return view('donations.create');
     }
 
+    /**
+     * Store a new donation
+     */
     public function store(Request $request)
     {
+        // Validate donation input
         $validator = Validator::make($request->all(), [
             'food_category' => 'required|in:produce,bakery,prepared_meals,packaged_goods,dairy,other',
             'food_description' => 'required|string|max:500',
@@ -29,15 +34,16 @@ class DonationController extends Controller
             'additional_instructions' => 'nullable|string|max:500'
         ]);
 
+        // Check validation
         if ($validator->fails()) {
             return redirect()->back()
                 ->withErrors($validator)
                 ->withInput();
         }
 
-        // Create donation with user_id instead of donor_id
+        // Create donation
         $donation = Donation::create([
-            'user_id' => Auth::id(), // Use user_id from authenticated user
+            'user_id' => Auth::id(), // Ensure this matches the donor's ID
             'food_category' => $request->food_category,
             'food_description' => $request->food_description,
             'estimated_servings' => $request->estimated_servings,
@@ -49,28 +55,40 @@ class DonationController extends Controller
             'status' => 'available'
         ]);
 
+        // Redirect with success message
         return redirect()->route('donor.donations.index')
             ->with('success', 'Donation created successfully');
     }
 
+    /**
+     * Display list of donations for the donor
+     */
     public function index()
     {
-        $donations = Auth::user()->donations;
+        // Fetch only the current user's donations
+        $donations = Auth::user()->donations()->latest()->get();
         return view('donor.donations', compact('donations'));
     }
 
+    /**
+     * Show edit form for a specific donation
+     */
     public function edit(Donation $donation)
     {
-        // Use $this->authorize() instead of authorize()
+        // Authorize the edit action
         $this->authorize('update', $donation);
         return view('donor.edit-donation', compact('donation'));
     }
 
+    /**
+     * Update a specific donation
+     */
     public function update(Request $request, Donation $donation)
     {
-        // Use $this->authorize() instead of authorize()
+        // Authorize the update action
         $this->authorize('update', $donation);
 
+        // Validate donation input
         $validator = Validator::make($request->all(), [
             'food_category' => 'required|in:produce,bakery,prepared_meals,packaged_goods,dairy,other',
             'food_description' => 'required|string|max:500',
@@ -82,26 +100,54 @@ class DonationController extends Controller
             'additional_instructions' => 'nullable|string|max:500'
         ]);
 
+        // Check validation
         if ($validator->fails()) {
             return redirect()->back()
                 ->withErrors($validator)
                 ->withInput();
         }
 
-        $donation->update($request->except(['_token', '_method']));
+        // Update donation
+        $donation->update($request->only([
+            'food_category',
+            'food_description',
+            'estimated_servings',
+            'best_before',
+            'donation_type',
+            'pickup_location',
+            'contact_number',
+            'additional_instructions'
+        ]));
 
+        // Redirect with success message
         return redirect()->route('donor.donations.index')
             ->with('success', 'Donation updated successfully');
     }
 
+    /**
+     * Delete a specific donation
+     */
     public function destroy(Donation $donation)
     {
-        // Use $this->authorize() instead of authorize()
+        // Authorize the delete action
         $this->authorize('delete', $donation);
 
+        // Delete the donation
         $donation->delete();
 
+        // Redirect with success message
         return redirect()->route('donor.donations.index')
             ->with('success', 'Donation deleted successfully');
+    }
+
+    /**
+     * Add a view button for donation details
+     */
+    public function show(Donation $donation)
+    {
+        // Authorize the view action
+        $this->authorize('view', $donation);
+
+        return view('donor.donation-details', compact('donation'));
     }
 }

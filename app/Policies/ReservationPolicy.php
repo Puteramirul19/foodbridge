@@ -16,7 +16,8 @@ class ReservationPolicy
     public function cancel(User $user, Reservation $reservation)
     {
         // Only the recipient who made the reservation can cancel it
-        return $user->id === $reservation->recipient_id;
+        return $user->id === $reservation->recipient_id && 
+               $reservation->status === 'pending';
     }
 
     /**

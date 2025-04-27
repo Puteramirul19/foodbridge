@@ -6,6 +6,7 @@ use App\Http\Controllers\DonationController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DonorController;
+use App\Http\Controllers\RecipientController;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Donation;
 
@@ -48,21 +49,21 @@ Route::middleware(['auth', 'role:donor'])->prefix('donor')->name('donor.')->grou
 // Recipient Routes (protected)
 Route::middleware(['auth', 'role:recipient'])->prefix('recipient')->name('recipient.')->group(function () {
     // Dashboard
-    Route::get('/dashboard', function () {
-        $reservations = Auth::user()->reservations;
-        return view('recipient.dashboard', compact('reservations'));
-    })->name('dashboard');
+    Route::get('/dashboard', [RecipientController::class, 'dashboard'])->name('dashboard');
 
-    // Donation Browsing
-    Route::get('/donations/browse', function () {
-        $donations = Donation::where('status', 'available')->get();
-        return view('recipient.browse-donations', compact('donations'));
-    })->name('donations.browse');
+    // Donations Browsing
+    Route::get('/donations/browse', [RecipientController::class, 'browseDonations'])->name('donations.browse');
 
-    // Reservation Routes
-    Route::get('/reservations', [ReservationController::class, 'index'])->name('reservations.index');
-    Route::post('/donations/{donation}/reserve', [ReservationController::class, 'store'])->name('donations.reserve');
-    Route::delete('/reservations/{reservation}/cancel', [ReservationController::class, 'cancel'])->name('reservations.cancel');
+    // Reservations
+    Route::get('/reservations', [RecipientController::class, 'listReservations'])->name('reservations');
+    Route::get('/reservations/{reservation}', [RecipientController::class, 'showReservationDetails'])
+        ->name('reservations.details');
+    Route::delete('/reservations/{reservation}/cancel', [RecipientController::class, 'cancelReservation'])
+        ->name('reservations.cancel');
+
+    // Reserve a specific donation
+    Route::post('/donations/{donation}/reserve', [ReservationController::class, 'store'])
+        ->name('donations.reserve');
 });
 
 // Admin Routes (protected)
@@ -75,5 +76,6 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::put('/users/{user}/toggle-status', [AdminController::class, 'toggleUserStatus'])->name('users.toggle-status');
 });
 
+// Report Generation Routes
 Route::get('/admin/generate-reports', [AdminController::class, 'showReportForm'])->name('admin.show-reports');
 Route::post('/admin/generate-reports', [AdminController::class, 'generateReports'])->name('admin.generate-reports');

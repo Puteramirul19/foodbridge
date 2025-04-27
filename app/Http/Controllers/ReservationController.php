@@ -11,33 +11,20 @@ use Illuminate\Support\Facades\Validator;
 class ReservationController extends Controller
 {
     /**
-     * List recipient's reservations
-     */
-    public function index()
-    {
-        $reservations = Auth::user()->reservations;
-        return view('recipient.reservations', compact('reservations'));
-    }
-
-    /**
-     * Create a new reservation for a donation
+     * Store a new reservation
      */
     public function store(Request $request, Donation $donation)
     {
-        // Validate donation is available
+        // Validate the donation is available
         if ($donation->status !== 'available') {
             return redirect()->back()
-                ->with('error', 'This donation is no longer available');
+                ->with('error', 'This donation is no longer available.');
         }
 
-        // Validate quantity
+        // Validate reservation details
         $validator = Validator::make($request->all(), [
-            'quantity_requested' => [
-                'required', 
-                'integer', 
-                'min:1', 
-                "max:{$donation->quantity}"
-            ]
+            'pickup_time' => 'required|date_format:H:i',
+            'pickup_date' => 'required|date|after_or_equal:today'
         ]);
 
         if ($validator->fails()) {
@@ -46,20 +33,31 @@ class ReservationController extends Controller
                 ->withInput();
         }
 
+        // Check if user already has a reservation for this donation
+        $existingReservation = Reservation::where('donation_id', $donation->id)
+            ->where('recipient_id', Auth::id())
+            ->exists();
+
+        if ($existingReservation) {
+            return redirect()->back()
+                ->with('error', 'You have already reserved this donation.');
+        }
+
         // Create reservation
         $reservation = Reservation::create([
             'donation_id' => $donation->id,
             'recipient_id' => Auth::id(),
-            'quantity_requested' => $request->quantity_requested,
-            'status' => 'pending'
+            'status' => 'pending',
+            'pickup_time' => $request->pickup_time,
+            'pickup_date' => $request->pickup_date
         ]);
 
         // Update donation status
         $donation->status = 'reserved';
         $donation->save();
 
-        return redirect()->route('recipient.reservations.index')
-            ->with('success', 'Donation reserved successfully');
+        return redirect()->route('recipient.reservations')
+            ->with('success', 'Donation reserved successfully.');
     }
 
     /**
@@ -67,7 +65,7 @@ class ReservationController extends Controller
      */
     public function cancel(Reservation $reservation)
     {
-        // Ensure user can only cancel their own reservations
+        // Ensure the user can only cancel their own reservations
         $this->authorize('cancel', $reservation);
 
         // Update donation status back to available
@@ -78,8 +76,8 @@ class ReservationController extends Controller
         // Delete the reservation
         $reservation->delete();
 
-        return redirect()->route('recipient.reservations.index')
-            ->with('success', 'Reservation cancelled successfully');
+        return redirect()->route('recipient.reservations')
+            ->with('success', 'Reservation cancelled successfully.');
     }
 
     /**
@@ -90,6 +88,7 @@ class ReservationController extends Controller
         // Ensure only the donor or recipient can confirm
         $this->authorize('confirmPickup', $reservation);
 
+        // Update reservation status
         $reservation->status = 'completed';
         $reservation->save();
 
@@ -99,6 +98,37 @@ class ReservationController extends Controller
         $donation->save();
 
         return redirect()->back()
-            ->with('success', 'Pickup confirmed successfully');
+            ->with('success', 'Pickup confirmed successfully.');
+    }
+
+    /**
+     * Generate a QR code for reservation
+     */
+    public function generateQRCode(Reservation $reservation)
+    {
+        // Ensure the user is either the donor or recipient
+        $this->authorize('view', $reservation);
+
+        // Generate QR code data
+        $qrData = [
+            'reservation_id' => $reservation->id,
+            'donation_id' => $reservation->donation_id,
+            'donor_name' => $reservation->donation->donor->name,
+            'recipient_name' => $reservation->recipient->name,
+            'food_description' => $reservation->donation->food_description,
+            'pickup_date' => $reservation->pickup_date,
+            'pickup_time' => $reservation->pickup_time,
+            'pickup_location' => $reservation->donation->pickup_location
+        ];
+
+        // Use a QR code library to generate the QR code
+        // For this example, we'll use a simple approach
+        // In a real application, you'd use a library like endroid/qr-code
+        $qrCodeString = json_encode($qrData);
+
+        return view('reservations.qr-code', [
+            'reservation' => $reservation,
+            'qrCodeString' => $qrCodeString
+        ]);
     }
 }
