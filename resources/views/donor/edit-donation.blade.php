@@ -129,7 +129,7 @@
                     <label for="pickup_location" class="form-label">Pickup/Drop-off Location</label>
                     <input type="text" class="form-control @error('pickup_location') is-invalid @enderror" id="pickup_location" name="pickup_location" required placeholder="Full address or specific location" value="{{ old('pickup_location', $donation->pickup_location) }}">
                     @error('pickup_location')
-                        <div class="invalid-feedback">{{ $message }}</div>
+                    <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
 

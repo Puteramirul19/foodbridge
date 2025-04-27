@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DonationController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\DonorController;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Donation;
 
@@ -30,12 +31,12 @@ Route::prefix('auth')->group(function () {
 // Donor Routes (protected)
 Route::middleware(['auth', 'role:donor'])->prefix('donor')->name('donor.')->group(function () {
     // Dashboard
-    Route::get('/dashboard', function () {
-        $donations = Auth::user()->donations;
-        return view('donor.dashboard', compact('donations'));
-    })->name('dashboard');
+    Route::get('/dashboard', [DonorController::class, 'dashboard'])->name('dashboard');
+    
+    // Donation Insights
+    Route::get('/insights', [DonorController::class, 'insights'])->name('insights');
 
-    // Donation Routes
+    // Existing Donation Routes
     Route::get('/donations', [DonationController::class, 'index'])->name('donations.index');
     Route::get('/donations/create', [DonationController::class, 'create'])->name('donations.create');
     Route::post('/donations', [DonationController::class, 'store'])->name('donations.store');

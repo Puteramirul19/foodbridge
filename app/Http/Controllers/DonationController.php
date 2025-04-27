@@ -6,6 +6,8 @@ use App\Models\Donation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Foundation\Validation\ValidatesRequests;
 
 class DonationController extends Controller
 {
@@ -33,16 +35,17 @@ class DonationController extends Controller
                 ->withInput();
         }
 
-        $donation = Auth::user()->donations()->create([
-            'user_id' => Auth::id(),
+        // Create donation with user_id instead of donor_id
+        $donation = Donation::create([
+            'user_id' => Auth::id(), // Use user_id from authenticated user
             'food_category' => $request->food_category,
             'food_description' => $request->food_description,
             'estimated_servings' => $request->estimated_servings,
             'best_before' => $request->best_before,
             'donation_type' => $request->donation_type,
             'pickup_location' => $request->pickup_location,
-            'additional_instructions' => $request->additional_instructions,
             'contact_number' => $request->contact_number,
+            'additional_instructions' => $request->additional_instructions,
             'status' => 'available'
         ]);
 
@@ -58,12 +61,14 @@ class DonationController extends Controller
 
     public function edit(Donation $donation)
     {
+        // Use $this->authorize() instead of authorize()
         $this->authorize('update', $donation);
         return view('donor.edit-donation', compact('donation'));
     }
 
     public function update(Request $request, Donation $donation)
     {
+        // Use $this->authorize() instead of authorize()
         $this->authorize('update', $donation);
 
         $validator = Validator::make($request->all(), [
@@ -91,6 +96,7 @@ class DonationController extends Controller
 
     public function destroy(Donation $donation)
     {
+        // Use $this->authorize() instead of authorize()
         $this->authorize('delete', $donation);
 
         $donation->delete();
