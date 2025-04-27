@@ -16,6 +16,8 @@ return new class extends Migration
         $table->unsignedBigInteger('donation_id');
         $table->unsignedBigInteger('recipient_id');
         $table->enum('status', ['pending', 'confirmed', 'cancelled'])->default('pending');
+        $table->time('pickup_time');
+        $table->date('pickup_date');
         $table->timestamps();
 
         $table->foreign('donation_id')->references('id')->on('donations')->onDelete('cascade');

@@ -27,6 +27,7 @@ class Reservation extends Model
      */
     protected $casts = [
         'pickup_date' => 'date',
+        'pickup_time' => 'datetime:H:i',
     ];
 
     /**

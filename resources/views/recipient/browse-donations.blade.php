@@ -92,7 +92,7 @@
                                         <td>
                                             <button type="button" class="btn btn-sm btn-primary reserve-btn" 
                                                     data-donation-id="{{ $donation->id }}">
-                                                <i class="fas fa-shopping-basket me-2"></i>Reserve
+                                                <i class="fas fa-shopping-basket me-2"></i>Accept
                                             </button>
                                         </td>
                                     </tr>
