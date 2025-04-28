@@ -17,33 +17,26 @@
             font-family: 'Arial', sans-serif;
         }
         .reports-container {
-            max-width: 600px;
+            max-width: 700px;
             margin: 50px auto;
         }
         .card {
             border: none;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
         }
         .card-header {
             background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
             color: white;
-            border-top-left-radius: 12px;
-            border-top-right-radius: 12px;
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
             padding: 20px;
-            text-align: center;
-        }
-        .card-header h2 {
-            margin-bottom: 0;
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
-        }
-        .card-header i {
-            margin-right: 10px;
         }
         .form-select, .form-control {
-            border-radius: 8px;
+            border-radius: 10px;
             padding: 12px;
         }
         .btn-primary {
@@ -55,15 +48,13 @@
             background-color: #1a5adf;
             transform: translateY(-2px);
         }
-        .form-label {
-            font-weight: 600;
-            color: #4a5568;
+        .date-info-btn {
+            margin-left: 10px;
         }
-        .info-text {
-            color: #6c757d;
-            text-align: center;
-            margin-top: 15px;
+        .report-type-description {
             font-size: 0.9rem;
+            color: #6c757d;
+            margin-top: 5px;
         }
     </style>
 </head>
@@ -92,35 +83,78 @@
     <div class="container reports-container">
         <div class="card">
             <div class="card-header">
-                <h2>
-                    <i class="fas fa-file-alt"></i>
-                    Generate Reports
+                <h2 class="mb-0">
+                    <i class="fas fa-file-alt me-2"></i>Generate Reports
                 </h2>
+                <span class="badge bg-light text-dark">
+                    <i class="fas fa-calendar-alt me-2"></i>
+                    {{ now()->format('d M Y') }}
+                </span>
             </div>
+            
             <div class="card-body p-4">
+                {{-- Error Handling --}}
+                @if(session('error'))
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        {{ session('error') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+
+                @if(session('warning'))
+                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        <i class="fas fa-info-circle me-2"></i>
+                        {{ session('warning') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+
+                @if($errors->any())
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="fas fa-times-circle me-2"></i>
+                        <ul class="mb-0">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+
                 <form action="{{ route('admin.generate-reports') }}" method="POST">
                     @csrf
                     
-                    @if($errors->any())
-                        <div class="alert alert-danger">
-                            <ul class="mb-0">
-                                @foreach($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
-
                     <div class="mb-3">
                         <label for="report_type" class="form-label">
                             <i class="fas fa-chart-pie me-2"></i>Report Type
                         </label>
                         <select name="report_type" id="report_type" class="form-select" required>
                             <option value="">Select Report Type</option>
-                            <option value="users">All Users</option>
-                            <option value="donations">Donations</option>
-                            <option value="donors">Donors</option>
-                            <option value="recipients">Recipients</option>
+                            <option value="users">
+                                Users Report
+                                <small class="report-type-description">
+                                    Comprehensive list of all registered users
+                                </small>
+                            </option>
+                            <option value="donations">
+                                Donations Report
+                                <small class="report-type-description">
+                                    Detailed breakdown of food donations
+                                </small>
+                            </option>
+                            <option value="donors">
+                                Donors Report
+                                <small class="report-type-description">
+                                    Insights into donor contributions
+                                </small>
+                            </option>
+                            <option value="recipients">
+                                Recipients Report
+                                <small class="report-type-description">
+                                    Overview of food recipients
+                                </small>
+                            </option>
                         </select>
                     </div>
                     
@@ -130,8 +164,8 @@
                         </label>
                         <select name="format" id="format" class="form-select" required>
                             <option value="">Select Format</option>
-                            <option value="csv">CSV</option>
-                            <option value="pdf">PDF</option>
+                            <option value="csv">CSV (Spreadsheet)</option>
+                            <option value="pdf">PDF (Printable Document)</option>
                         </select>
                     </div>
                     
@@ -140,13 +174,25 @@
                             <label for="start_date" class="form-label">
                                 <i class="fas fa-calendar-alt me-2"></i>Start Date
                             </label>
-                            <input type="date" name="start_date" id="start_date" class="form-control">
+                            <div class="input-group">
+                                <input type="date" name="start_date" id="start_date" class="form-control">
+                                <button type="button" class="btn btn-outline-secondary date-info-btn" 
+                                        data-bs-toggle="modal" data-bs-target="#dateRangeModal">
+                                    <i class="fas fa-question-circle"></i>
+                                </button>
+                            </div>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="end_date" class="form-label">
                                 <i class="fas fa-calendar-alt me-2"></i>End Date
                             </label>
-                            <input type="date" name="end_date" id="end_date" class="form-control">
+                            <div class="input-group">
+                                <input type="date" name="end_date" id="end_date" class="form-control">
+                                <button type="button" class="btn btn-outline-secondary date-info-btn" 
+                                        data-bs-toggle="modal" data-bs-target="#dateRangeModal">
+                                    <i class="fas fa-question-circle"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                     
@@ -156,11 +202,33 @@
                         </button>
                     </div>
                 </form>
-                
-                <p class="info-text">
-                    <i class="fas fa-info-circle me-2"></i>
-                    Optional date range helps you filter specific time periods
-                </p>
+            </div>
+        </div>
+    </div>
+
+    {{-- Date Range Info Modal --}}
+    <div class="modal fade" id="dateRangeModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-info-circle text-primary me-2"></i>Date Range Details
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <h6>Date Range Guidance</h6>
+                    <ul>
+                        <li>Optional fields for filtering reports</li>
+                        <li>Start date must be before or equal to end date</li>
+                        <li>Dates cannot be in the future</li>
+                        <li>Leave blank to generate a full historical report</li>
+                    </ul>
+                    <div class="alert alert-info">
+                        <i class="fas fa-lightbulb me-2"></i>
+                        Pro Tip: Use date ranges to analyze specific time periods or track donation trends
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -168,13 +236,18 @@
     {{-- Bootstrap JS --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    {{-- Custom JavaScript for Date Validation --}}
+    {{-- Date Validation Script --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const startDateInput = document.getElementById('start_date');
             const endDateInput = document.getElementById('end_date');
+            
+            // Set max date to today
+            const today = new Date().toISOString().split('T')[0];
+            startDateInput.max = today;
+            endDateInput.max = today;
 
-            // Prevent selecting end date before start date
+            // Date range validation
             endDateInput.addEventListener('change', function() {
                 if (startDateInput.value && this.value < startDateInput.value) {
                     alert('End date cannot be before start date');

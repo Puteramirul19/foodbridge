@@ -4,13 +4,20 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Donation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Support\Facades\Response;
 
 class AdminController extends Controller
 {
+    /**
+     * Show the admin dashboard with platform statistics
+     */
     public function dashboard()
     {
+        // Count total users by role
         $totalDonors = User::where('role', 'donor')->count();
         $totalRecipients = User::where('role', 'recipient')->count();
         $totalDonations = Donation::count();
@@ -40,101 +47,238 @@ class AdminController extends Controller
         ]);
     }
 
+    /**
+     * Manage users page
+     */
     public function manageUsers()
     {
         $users = User::all();
         return view('admin.manage-users', compact('users'));
     }
 
+    /**
+     * Toggle user active status
+     */
     public function toggleUserStatus(User $user)
     {
         // Toggle user's active status
         $user->is_active = !$user->is_active;
-        $user->save();
+        
+        try {
+            $user->save();
 
-        return redirect()->route('admin.users.index')
-            ->with('success', 'User status updated successfully');
+            // Log the status change
+            Log::info('User status updated', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'new_status' => $user->is_active ? 'Active' : 'Inactive',
+                'admin' => Auth::user()->name
+            ]);
+
+            return redirect()->route('admin.users.index')
+                ->with('success', 'User status updated successfully');
+
+        } catch (\Exception $e) {
+            // Log any errors during status update
+            Log::error('User status update failed', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage()
+            ]);
+
+            return redirect()->back()
+                ->with('error', 'Failed to update user status');
+        }
     }
+
+    /**
+     * Show report generation form
+     */
+    public function showReportForm()
+    {
+        return view('admin.generate-reports');
+    }
+
+    /**
+     * Generate reports (CSV or PDF)
+     */
     public function generateReports(Request $request)
     {
-        // Validate input
-        $request->validate([
-            'report_type' => 'required|in:users,donations,donors,recipients',
-            'format' => 'required|in:csv,pdf',
-            'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date'
+        // Extended validation with more specific rules
+        $validator = Validator::make($request->all(), [
+            'report_type' => [
+                'required', 
+                Rule::in(['users', 'donations', 'donors', 'recipients'])
+            ],
+            'format' => [
+                'required', 
+                Rule::in(['csv', 'pdf'])
+            ],
+            'start_date' => 'nullable|date|before_or_equal:today',
+            'end_date' => 'nullable|date|after_or_equal:start_date|before_or_equal:today'
         ]);
 
-        // Build query based on report type
-        $query = match($request->report_type) {
-            'users' => User::query(),
-            'donations' => Donation::query(),
-            'donors' => User::where('role', 'donor'),
-            'recipients' => User::where('role', 'recipient')
-        };
+        // Custom error messages
+        $validator->setCustomMessages([
+            'report_type.in' => 'Invalid report type selected.',
+            'format.in' => 'Invalid export format selected.',
+            'start_date.before_or_equal' => 'Start date cannot be in the future.',
+            'end_date.after_or_equal' => 'End date must be after or equal to start date.',
+            'end_date.before_or_equal' => 'End date cannot be in the future.'
+        ]);
 
-        // Apply date filtering if dates are provided
-        if ($request->start_date && $request->end_date) {
-            $query->whereBetween('created_at', [$request->start_date, $request->end_date]);
+        // Check validation
+        if ($validator->fails()) {
+            // Log validation errors
+            Log::warning('Report Generation Validation Failed', [
+                'errors' => $validator->errors()->toArray(),
+                'input' => $request->except(['_token'])
+            ]);
+
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
         }
 
-        // Get data
-        $data = $query->get();
+        try {
+            // Build query based on report type with eager loading
+            $query = match($request->report_type) {
+                'users' => User::query(),
+                'donations' => Donation::with('donor')
+                    ->when($request->start_date && $request->end_date, function ($q) use ($request) {
+                        return $q->whereBetween('created_at', [$request->start_date, $request->end_date]);
+                    }),
+                'donors' => User::with('donations')
+                    ->where('role', 'donor')
+                    ->when($request->start_date && $request->end_date, function ($q) use ($request) {
+                        return $q->whereBetween('created_at', [$request->start_date, $request->end_date]);
+                    }),
+                'recipients' => User::with('reservations.donation')
+                    ->where('role', 'recipient')
+                    ->when($request->start_date && $request->end_date, function ($q) use ($request) {
+                        return $q->whereBetween('created_at', [$request->start_date, $request->end_date]);
+                    })
+            };
 
-        // Generate report based on format
-        if ($request->format === 'csv') {
-            return $this->generateCSVReport($data, $request->report_type);
-        } else {
-            return $this->generatePDFReport($data, $request->report_type);
+            // Get filtered data
+            $data = $query->get();
+
+            // Check if data is empty
+            if ($data->isEmpty()) {
+                Log::info('No data found for report generation', [
+                    'report_type' => $request->report_type,
+                    'start_date' => $request->start_date,
+                    'end_date' => $request->end_date
+                ]);
+
+                return redirect()->back()
+                    ->with('warning', 'No data found for the selected criteria.');
+            }
+
+            // Log report generation
+            Log::info('Report Generated', [
+                'type' => $request->report_type,
+                'format' => $request->format,
+                'records_count' => $data->count(),
+                'user' => Auth::user()->name
+            ]);
+
+            // Generate report based on format
+            return $request->format === 'csv' 
+                ? $this->generateCSVReport($data, $request->report_type)
+                : $this->generatePDFReport($data, $request->report_type);
+
+        } catch (\Exception $e) {
+            // Log any unexpected errors
+            Log::error('Report Generation Failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'input' => $request->except(['_token'])
+            ]);
+
+            return redirect()->back()
+                ->with('error', 'An unexpected error occurred while generating the report. Please try again.');
         }
     }
 
+    /**
+     * Generate CSV Report
+     */
     private function generateCSVReport($data, $type)
     {
-        // Determine CSV columns based on report type
-        $columns = match($type) {
-            'users' => ['ID', 'Name', 'Email', 'Role', 'Created At'],
-            'donations' => ['ID', 'Donor', 'Type', 'Quantity', 'Status', 'Created At'],
-            'donors' => ['ID', 'Name', 'Email', 'Total Donations', 'Created At'],
-            'recipients' => ['ID', 'Name', 'Email', 'Total Reservations', 'Created At']
-        };
-
-        // Prepare CSV content
-        $csvContent = implode(',', $columns) . "\n";
+        // Determine CSV columns and data based on report type
+        $csvRows = [];
         
-        foreach ($data as $item) {
-            $row = [];
-            foreach ($columns as $column) {
-                $row[] = '"' . str_replace('"', '""', $this->getColumnValue($item, $column)) . '"';
-            }
-            $csvContent .= implode(',', $row) . "\n";
+        switch($type) {
+            case 'users':
+                $csvRows[] = ['ID', 'Name', 'Email', 'Role', 'Registration Date'];
+                foreach ($data as $user) {
+                    $csvRows[] = [
+                        $user->id, 
+                        $user->name, 
+                        $user->email, 
+                        $user->role, 
+                        $user->created_at->format('Y-m-d H:i:s')
+                    ];
+                }
+                break;
+            
+            case 'donations':
+                $csvRows[] = ['ID', 'Donor', 'Food Category', 'Servings', 'Status', 'Date'];
+                foreach ($data as $donation) {
+                    $csvRows[] = [
+                        $donation->id,
+                        $donation->donor->name,
+                        $donation->food_category,
+                        $donation->estimated_servings,
+                        $donation->status,
+                        $donation->created_at->format('Y-m-d H:i:s')
+                    ];
+                }
+                break;
+            
+            case 'donors':
+                $csvRows[] = ['ID', 'Name', 'Email', 'Total Donations', 'Total Servings'];
+                foreach ($data as $donor) {
+                    $csvRows[] = [
+                        $donor->id,
+                        $donor->name,
+                        $donor->email,
+                        $donor->donations->count(),
+                        $donor->donations->sum('estimated_servings')
+                    ];
+                }
+                break;
+            
+            case 'recipients':
+                $csvRows[] = ['ID', 'Name', 'Email', 'Total Reservations', 'Total Servings Received'];
+                foreach ($data as $recipient) {
+                    $csvRows[] = [
+                        $recipient->id,
+                        $recipient->name,
+                        $recipient->email,
+                        $recipient->reservations->count(),
+                        $recipient->reservations->sum('donation.estimated_servings')
+                    ];
+                }
+                break;
         }
 
         // Generate CSV file
         $filename = $type . '_report_' . now()->format('YmdHis') . '.csv';
+        $handle = fopen($filename, 'w');
         
-        return Response::stream(
-            function() use ($csvContent) { echo $csvContent; }, 
-            200, 
-            [
-                'Content-Type' => 'text/csv',
-                'Content-Disposition' => 'attachment; filename="' . $filename . '"'
-            ]
-        );
+        foreach ($csvRows as $row) {
+            fputcsv($handle, $row);
+        }
+        
+        fclose($handle);
+
+        return response()->download($filename)->deleteFileAfterSend();
     }
 
-    private function getColumnValue($item, $column)
-    {
-        return match($column) {
-            'ID' => $item->id,
-            'Name' => $item->name,
-            'Email' => $item->email,
-            'Role' => $item->role,
-            'Created At' => $item->created_at->format('Y-m-d H:i:s'),
-            default => ''
-        };
-    }
-
+    /**
+     * Generate PDF Report
+     */
     private function generatePDFReport($data, $type)
     {
         $filename = $type . '_report_' . now()->format('YmdHis') . '.pdf';
@@ -142,15 +286,9 @@ class AdminController extends Controller
         $pdf = PDF::loadView('admin.reports.pdf', [
             'data' => $data,
             'type' => $type,
-            'title' => ucfirst($type) . ' Report'
+            'title' => 'FoodBridge ' . ucfirst($type) . ' Report'
         ]);
 
         return $pdf->download($filename);
     }
-
-    public function showReportForm()
-    {
-        return view('admin.generate-reports');
-    }
-
 }
