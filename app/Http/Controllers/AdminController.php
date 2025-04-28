@@ -13,12 +13,30 @@ class AdminController extends Controller
     {
         $totalDonors = User::where('role', 'donor')->count();
         $totalRecipients = User::where('role', 'recipient')->count();
-        $totalDonations = Donation::count(); // Updated to use actual donation count
+        $totalDonations = Donation::count();
+
+        // Get donations for the last 6 months
+        $monthlyDonations = Donation::selectRaw('MONTH(created_at) as month, COUNT(*) as count')
+            ->whereRaw('created_at >= DATE_SUB(CURRENT_DATE, INTERVAL 6 MONTH)')
+            ->groupBy('month')
+            ->orderBy('month')
+            ->get()
+            ->keyBy('month')
+            ->map(function ($item) {
+                return $item->count;
+            });
+
+        // Prepare data for chart (6 months)
+        $donationTrends = [];
+        for ($i = 1; $i <= 6; $i++) {
+            $donationTrends[] = $monthlyDonations->get($i, 0);
+        }
 
         return view('admin.dashboard', [
             'totalDonors' => $totalDonors,
             'totalRecipients' => $totalRecipients,
-            'totalDonations' => $totalDonations
+            'totalDonations' => $totalDonations,
+            'donationTrends' => $donationTrends
         ]);
     }
 

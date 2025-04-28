@@ -27,7 +27,7 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'phone_number' => 'required|string|max:20',
+            'phone_number' => 'required|string|max:20', // Ensure this matches the input name
             'password' => 'required|string|min:8|confirmed',
             'role' => 'required|in:donor,recipient'
         ]);
@@ -43,7 +43,7 @@ class AuthController extends Controller
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'phone_number' => $request->phone_number,
+            'phone_number' => $request->phone_number, // Use phone_number consistently
             'password' => Hash::make($request->password),
             'role' => $request->role
         ]);
