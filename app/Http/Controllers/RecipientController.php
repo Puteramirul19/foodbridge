@@ -23,16 +23,44 @@ class RecipientController extends Controller
             ->latest()
             ->paginate(5);
 
-        // Get statistics
+        // Calculate statistics
         $stats = [
             'totalReservations' => $user->reservations->count(),
             'activeReservations' => $user->reservations()->where('status', 'pending')->count(),
             'completedReservations' => $user->reservations()->where('status', 'completed')->count()
         ];
 
-        return view('recipient.dashboard', compact('reservations', 'stats'));
-    }
+        // Get the last 6 months dynamically
+        $monthlyReservations = $user->reservations()
+            ->selectRaw('MONTH(created_at) as month, COUNT(*) as count')
+            ->whereRaw('created_at >= DATE_SUB(CURRENT_DATE, INTERVAL 6 MONTH)')
+            ->groupBy('month')
+            ->orderBy('month')
+            ->get()
+            ->keyBy('month')
+            ->map(function ($item) {
+                return $item->count;
+            });
 
+        // Prepare dynamic month names and data
+        $monthNames = [];
+        $reservationTrends = [];
+        
+        // Generate last 6 months dynamically
+        for ($i = 5; $i >= 0; $i--) {
+            $monthDate = now()->subMonths($i);
+            $monthNames[] = $monthDate->format('M');
+            $monthKey = $monthDate->month;
+            $reservationTrends[] = $monthlyReservations->get($monthKey, 0);
+        }
+
+        return view('recipient.dashboard', [
+            'reservations' => $reservations,
+            'stats' => $stats,
+            'reservationTrends' => $reservationTrends,
+            'monthNames' => $monthNames
+        ]);
+    }
     /**
      * Browse available donations
      */
@@ -106,12 +134,22 @@ class RecipientController extends Controller
     /**
      * List all reservations
      */
-    public function listReservations()
+    public function listReservations(Request $request)
     {
-        $reservations = Auth::user()->reservations()
-            ->with('donation')
-            ->latest()
-            ->paginate(10);
+        $query = Auth::user()->reservations()->with('donation.donor');
+
+        // Status filtering
+        if ($request->has('status') && $request->status) {
+            $query->where('status', $request->status);
+        }
+
+        // Date range filtering
+        if ($request->start_date) {
+            $query->whereDate('pickup_date', '>=', $request->start_date);
+        }
+
+        // Paginate results
+        $reservations = $query->latest()->paginate(10);
 
         return view('recipient.reservations', compact('reservations'));
     }

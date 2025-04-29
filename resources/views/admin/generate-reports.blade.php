@@ -132,27 +132,27 @@
                         <select name="report_type" id="report_type" class="form-select" required>
                             <option value="">Select Report Type</option>
                             <option value="users">
-                                Users Report
+                                Users Overview
                                 <small class="report-type-description">
-                                    Comprehensive list of all registered users
+                                    All registered platform users by role
                                 </small>
                             </option>
                             <option value="donations">
-                                Donations Report
+                                Food Donations Summary
                                 <small class="report-type-description">
-                                    Detailed breakdown of food donations
+                                    Details of all food donations made
                                 </small>
                             </option>
                             <option value="donors">
-                                Donors Report
+                                Donor Contribution Report
                                 <small class="report-type-description">
-                                    Insights into donor contributions
+                                    Breakdown of donor activities and donations
                                 </small>
                             </option>
                             <option value="recipients">
-                                Recipients Report
+                                Food Recipients Report
                                 <small class="report-type-description">
-                                    Overview of food recipients
+                                    Overview of food reservation activities
                                 </small>
                             </option>
                         </select>
