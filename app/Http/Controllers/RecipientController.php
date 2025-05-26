@@ -7,6 +7,7 @@ use App\Models\Reservation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Carbon\Carbon;
 
 class RecipientController extends Controller
 {
@@ -61,13 +62,15 @@ class RecipientController extends Controller
             'monthNames' => $monthNames
         ]);
     }
+
     /**
      * Browse available donations
      */
     public function browseDonations(Request $request)
     {
-        // Base query for available donations
-        $query = Donation::where('status', 'available');
+        // Base query for available donations that are not expired
+        $query = Donation::where('status', 'available')
+                         ->where('best_before', '>=', Carbon::today());
 
         // Filter by food category if provided
         if ($request->has('food_category') && $request->food_category != '') {
@@ -83,6 +86,14 @@ class RecipientController extends Controller
         if ($request->has('search') && $request->search != '') {
             $query->where('food_description', 'LIKE', '%' . $request->search . '%');
         }
+
+        // Show expired donations if explicitly requested (for debugging/admin purposes)
+        if ($request->has('show_expired') && $request->show_expired == '1') {
+            $query = Donation::where('status', 'available'); // Remove date filter
+        }
+
+        // Order by best_before date (most urgent first)
+        $query->orderBy('best_before', 'asc');
 
         // Paginate results
         $donations = $query->paginate(10);
@@ -152,5 +163,36 @@ class RecipientController extends Controller
         $reservations = $query->latest()->paginate(10);
 
         return view('recipient.reservations', compact('reservations'));
+    }
+
+    /**
+     * Get donations expiring soon (for dashboard alerts)
+     */
+    public function getExpiringSoonDonations()
+    {
+        $expiringSoon = Donation::where('status', 'available')
+            ->whereBetween('best_before', [
+                Carbon::today(),
+                Carbon::today()->addDays(2)
+            ])
+            ->orderBy('best_before', 'asc')
+            ->limit(5)
+            ->get();
+
+        return response()->json($expiringSoon);
+    }
+
+    /**
+     * Clean up expired donations (could be called via cron job)
+     */
+    public function cleanupExpiredDonations()
+    {
+        $expiredCount = Donation::where('status', 'available')
+            ->where('best_before', '<', Carbon::today())
+            ->update(['status' => 'expired']);
+
+        return response()->json([
+            'message' => "Cleaned up {$expiredCount} expired donations"
+        ]);
     }
 }

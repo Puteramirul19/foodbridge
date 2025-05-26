@@ -60,6 +60,33 @@ class Donation extends Model
     }
 
     /**
+     * Scope for non-expired donations
+     */
+    public function scopeNotExpired($query)
+    {
+        return $query->where('best_before', '>=', Carbon::today());
+    }
+
+    /**
+     * Scope for expired donations
+     */
+    public function scopeExpired($query)
+    {
+        return $query->where('best_before', '<', Carbon::today());
+    }
+
+    /**
+     * Scope for donations expiring soon (within specified days)
+     */
+    public function scopeExpiringSoon($query, $days = 1)
+    {
+        return $query->whereBetween('best_before', [
+            Carbon::today(),
+            Carbon::today()->addDays($days)
+        ]);
+    }
+
+    /**
      * Get the donation's status badge
      */
     public function getStatusBadgeAttribute()
@@ -68,15 +95,81 @@ class Donation extends Model
             'available' => 'badge-success',
             'reserved' => 'badge-warning',
             'completed' => 'badge-secondary',
+            'expired' => 'badge-danger',
             default => 'badge-light'
         };
     }
 
     /**
+     * Check if donation is expired
+     */
+    public function isExpired()
+    {
+        return Carbon::parse($this->best_before)->isPast();
+    }
+
+    /**
      * Check if donation is expiring soon
      */
-    public function isExpiringSoon()
+    public function isExpiringSoon($days = 1)
     {
-        return now()->diffInDays($this->best_before, false) <= 1;
+        $bestBefore = Carbon::parse($this->best_before);
+        $now = Carbon::now();
+        
+        return !$this->isExpired() && 
+               $now->diffInDays($bestBefore, false) <= $days;
+    }
+
+    /**
+     * Get days left until expiration
+     */
+    public function getDaysUntilExpiration()
+    {
+        $bestBefore = Carbon::parse($this->best_before);
+        $now = Carbon::now();
+        
+        return $now->diffInDays($bestBefore, false);
+    }
+
+    /**
+     * Get formatted expiration status
+     */
+    public function getExpirationStatusAttribute()
+    {
+        if ($this->isExpired()) {
+            return [
+                'status' => 'expired',
+                'class' => 'text-danger fw-bold',
+                'message' => 'Expired'
+            ];
+        } elseif ($this->isExpiringSoon()) {
+            return [
+                'status' => 'expiring_soon',
+                'class' => 'text-warning fw-bold',
+                'message' => 'Expiring Soon'
+            ];
+        } else {
+            $daysLeft = $this->getDaysUntilExpiration();
+            return [
+                'status' => 'fresh',
+                'class' => 'text-success',
+                'message' => $daysLeft . ' days left'
+            ];
+        }
+    }
+
+    /**
+     * Boot method to handle model events
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Automatically mark donations as expired when they pass their best_before date
+        static::saving(function ($donation) {
+            if ($donation->isExpired() && $donation->status === 'available') {
+                $donation->status = 'expired';
+            }
+        });
     }
 }
