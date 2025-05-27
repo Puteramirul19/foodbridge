@@ -59,6 +59,9 @@
             text-align: center;
             margin-top: 20px;
         }
+        .error-alert {
+        margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
@@ -68,38 +71,86 @@
             <h2>Login to FoodBridge</h2>
         </div>
         
-        <form method="POST" action="{{ route('login') }}">
-            @csrf
-            
-            <div class="mb-3">
-                <label for="email" class="form-label">Email address</label>
-                <input type="email" class="form-control" id="email" name="email" required autofocus>
-            </div>
-            
-            <div class="mb-3">
-                <label for="password" class="form-label">Password</label>
-                <input type="password" class="form-control" id="password" name="password" required>
-            </div>
-            
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="remember_me" name="remember">
-                <label class="form-check-label" for="remember_me">
-                    Remember Me
-                </label>
-            </div>
-            
-            <button type="submit" class="btn btn-primary">Login</button>
-            
-            <div class="register-link">
-                <p class="mt-3">
-                    Don't have an account? 
-                    <a href="{{ route('register') }}" class="text-primary">Register here</a>
-                </p>
-            </div>
-        </form>
-    </div>
+        {{-- Display Error Messages --}}
+            @if($errors->any())
+                <div class="alert alert-danger error-alert" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    @foreach($errors->all() as $error)
+                        {{ $error }}
+                    @endforeach
+                </div>
+            @endif
 
-    {{-- Bootstrap JS --}}
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+            {{-- Display Session Flash Messages --}}
+            @if(session('error'))
+                <div class="alert alert-danger error-alert" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    {{ session('error') }}
+                </div>
+            @endif
+
+            @if(session('success'))
+                <div class="alert alert-success error-alert" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>
+                    {{ session('success') }}
+                </div>
+            @endif
+            
+            <form method="POST" action="{{ route('login') }}">
+                @csrf
+                
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email address</label>
+                    <input type="email" 
+                        class="form-control @error('email') is-invalid @enderror" 
+                        id="email" 
+                        name="email" 
+                        value="{{ old('email') }}"
+                        required 
+                        autofocus>
+                    @error('email')
+                        <div class="invalid-feedback">
+                            {{ $message }}
+                        </div>
+                    @enderror
+                </div>
+                
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" 
+                        class="form-control @error('password') is-invalid @enderror" 
+                        id="password" 
+                        name="password" 
+                        required>
+                    @error('password')
+                        <div class="invalid-feedback">
+                            {{ $message }}
+                        </div>
+                    @enderror
+                </div>
+                
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="remember_me" name="remember">
+                    <label class="form-check-label" for="remember_me">
+                        Remember Me
+                    </label>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Login</button>
+                
+                <div class="register-link">
+                    <p class="mt-3">
+                        Don't have an account? 
+                        <a href="{{ route('register') }}" class="text-primary">Register here</a>
+                    </p>
+                </div>
+            </form>
+        </div>
+
+{{-- Bootstrap JS --}}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+
+{{-- Font Awesome for icons --}}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
 </body>
 </html>
