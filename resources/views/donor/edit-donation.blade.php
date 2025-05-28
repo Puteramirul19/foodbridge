@@ -40,8 +40,8 @@
 <body>
     {{-- Navigation --}}
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
-        <div class="container">
-            <a class="navbar-brand d-flex align-items-center" href="{{ route('home') }}">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center" href="{{ route('donor.dashboard') }}">
                 <img src="{{ asset('foodbridge-icon.svg') }}" alt="FoodBridge Logo" height="40" class="me-2">
                 <span class="fw-bold" style="color: #4A5568; font-size: 1.25rem;">FoodBridge</span>
             </a>
@@ -49,7 +49,9 @@
                 <a href="{{ route('donor.donations.index') }}" class="btn btn-outline-primary me-2">My Donations</a>
                 <form method="POST" action="{{ route('logout') }}" class="d-inline">
                     @csrf
-                    <button type="submit" class="btn btn-outline-danger">Logout</button>
+                    <button type="submit" class="btn btn-outline-danger">
+                        <i class="fas fa-sign-out-alt me-2"></i>Logout
+                    </button>
                 </form>
             </div>
         </div>

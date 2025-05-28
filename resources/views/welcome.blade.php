@@ -53,13 +53,13 @@
 <body>
     {{-- Navigation --}}
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
-        <div class="container">
+        <div class="container-fluid">
             <a class="navbar-brand d-flex align-items-center" href="{{ route('home') }}">
                 {{-- Logo --}}
                 <img src="{{ asset('foodbridge-icon.svg') }}" alt="FoodBridge Logo" height="40" class="me-2">
                 
                 {{-- FoodBridge Text --}}
-                <span class="fw-bold" style="color: #2575fc; font-size: 1.25rem;">FoodBridge</span>
+                <span class="fw-bold" style="color: #4A5568; font-size: 1.25rem;">FoodBridge</span>
             </a>
             <div class="ms-auto">
             @guest
