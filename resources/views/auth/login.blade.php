@@ -10,7 +10,7 @@
     
     <style>
         body {
-            background-color: #f4f6f9;
+            background-color: #FEFAE0;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -67,7 +67,7 @@
 <body>
     <div class="login-container">
         <div class="login-header">
-            <img src="{{ asset('foodbridge-icon.svg') }}" alt="FoodBridge Logo">
+            <img src="{{ asset('icon.png') }}" alt="FoodBridge Logo">
             <h2>Login to FoodBridge</h2>
         </div>
         

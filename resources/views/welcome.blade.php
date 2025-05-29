@@ -15,38 +15,91 @@
     <style>
         body {
             background-color: #f4f6f9;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
         }
         .hero-section {
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            background-image: url('{{ asset('Prototype.png') }}');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
             color: white;
-            padding: 100px 0;
+            padding: 150px 0;
+            position: relative;
+        }
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 1;
+        }
+        .hero-section > .container {
+            position: relative;
+            z-index: 2;
+        }
+        .hero-section h1 {
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        .hero-section .lead {
+            font-size: 1.25rem;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
         }
         .how-it-works {
             padding: 80px 0;
-            background-color: white;
+            background-color: #FEFAE0;
         }
         .feature-box {
-            background-color: #f8f9fa;
-            border-radius: 10px;
+            background-color: white;
+            border-radius: 15px;
             padding: 30px;
             margin-bottom: 30px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.4s ease;
+            border-top: 4px solid #2575fc;
         }
         .feature-box:hover {
-            transform: translateY(-10px);
+            transform: translateY(-15px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
         }
         .icon-circle {
-            width: 70px;
-            height: 70px;
-            background-color: #2575fc;
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
             color: white;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 0 auto 20px;
-            font-size: 30px;
+            font-size: 35px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .btn-get-started {
+            transition: all 0.3s ease;
+            transform: translateY(0);
+        }
+        .btn-get-started:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .hero-section .container > * {
+            animation: fadeInUp 1s ease forwards;
+            opacity: 0;
+            animation-delay: 0.3s;
         }
     </style>
 </head>
@@ -56,15 +109,15 @@
         <div class="container-fluid">
             <a class="navbar-brand d-flex align-items-center" href="{{ route('home') }}">
                 {{-- Logo --}}
-                <img src="{{ asset('foodbridge-icon.svg') }}" alt="FoodBridge Logo" height="40" class="me-2">
+                <img src="{{ asset('icon.png') }}" alt="FoodBridge Logo" height="30" class="me-2">
                 
                 {{-- FoodBridge Text --}}
                 <span class="fw-bold" style="color: #4A5568; font-size: 1.25rem;">FoodBridge</span>
             </a>
             <div class="ms-auto">
             @guest
-                <a href="{{ route('login') }}" class="btn btn-outline-primary me-2">Login</a>
-                <a href="{{ route('register') }}" class="btn btn-primary">Register</a>
+                <a href="{{ route('login') }}" class="btn btn-outline-secondary me-2">Login</a>
+                <a href="{{ route('register') }}" class="btn btn-secondary">Register</a>
             @else
                 <a href="{{ 
                     auth()->user()->role === 'admin' ? route('admin.dashboard') : 
@@ -82,9 +135,13 @@
             <p class="lead mb-5">Transform surplus food into hope. Reduce waste, feed communities.</p>
             <div>
                 @guest
-                    <a href="{{ route('register') }}" class="btn btn-light btn-lg me-3">Get Started</a>
+                    <a href="{{ route('register') }}" class="btn btn-get-started btn-light btn-lg me-3">
+                        <i class="fas fa-rocket me-2"></i>Get Started
+                    </a>
                 @endguest
-                <a href="#how-it-works" class="btn btn-outline-light btn-lg">Learn More</a>
+                <a href="#how-it-works" class="btn btn-outline-light btn-lg">
+                    <i class="fas fa-info-circle me-2"></i>Learn More
+                </a>
             </div>
         </div>
     </section>
@@ -126,7 +183,7 @@
     </section>
 
     {{-- Impact Section --}}
-    <section class="bg-light py-5 text-center">
+    <section class="bg-light py-5 text-center" style="background-color: #FEFAE0;">
         <div class="container">
             <h2 class="mb-4">Our Impact</h2>
             <div class="row">
@@ -150,11 +207,6 @@
     <footer class="bg-dark text-white py-4">
         <div class="container text-center">
             <p>&copy; {{ date('Y') }} FoodBridge. All rights reserved.</p>
-            <div class="social-links mt-3">
-                <a href="#" class="text-white me-3"><i class="fab fa-facebook"></i></a>
-                <a href="#" class="text-white me-3"><i class="fab fa-twitter"></i></a>
-                <a href="#" class="text-white"><i class="fab fa-instagram"></i></a>
-            </div>
         </div>
     </footer>
 

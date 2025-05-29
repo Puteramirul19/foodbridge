@@ -10,7 +10,7 @@
     
     <style>
         body {
-            background-color: #f4f6f9;
+            background-color: #FEFAE0;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -65,7 +65,7 @@
 <body>
     <div class="register-container">
         <div class="register-header">
-            <img src="{{ asset('foodbridge-icon.svg') }}" alt="FoodBridge Logo">
+            <img src="{{ asset('icon.png') }}" alt="FoodBridge Logo">
             <h2>Register for FoodBridge</h2>
         </div>
         
