@@ -75,6 +75,17 @@ class DonationController extends Controller
     }
 
     /**
+     * Show details of a specific donation
+     */
+    public function show(Donation $donation)
+    {
+        // Authorize the view action
+        $this->authorize('view', $donation);
+
+        return view('donor.donation-details', compact('donation'));
+    }
+    
+    /**
      * Show edit form for a specific donation
      */
     public function edit(Donation $donation)
@@ -150,14 +161,4 @@ class DonationController extends Controller
             ->with('success', 'Donation deleted successfully');
     }
 
-    /**
-     * Add a view button for donation details
-     */
-    public function show(Donation $donation)
-    {
-        // Authorize the view action
-        $this->authorize('view', $donation);
-
-        return view('donor.donation-details', compact('donation'));
-    }
 }

@@ -150,6 +150,12 @@
                                 </td>
                                 <td class="actions-column">
                                     <div class="btn-group" role="group">
+                                        {{-- View Button --}}
+                                        <a href="{{ route('donor.donations.show', $donation) }}" 
+                                           class="btn btn-sm btn-outline-info">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+
                                         {{-- Edit Button --}}
                                         @if(!$donation->isExpired() && $donation->status === 'available')
                                             <a href="{{ route('donor.donations.edit', $donation) }}" 

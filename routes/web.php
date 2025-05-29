@@ -42,6 +42,7 @@ Route::middleware(['auth', 'active', 'role:donor'])->prefix('donor')->name('dono
     Route::get('/donations/{donation}/edit', [DonationController::class, 'edit'])->name('donations.edit');
     Route::put('/donations/{donation}', [DonationController::class, 'update'])->name('donations.update');
     Route::delete('/donations/{donation}', [DonationController::class, 'destroy'])->name('donations.destroy');
+    Route::get('/donations/{donation}', [DonationController::class, 'show'])->name('donations.show');
 });
 
 // Recipient Routes (protected)
