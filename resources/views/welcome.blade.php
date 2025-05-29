@@ -183,7 +183,7 @@
     </section>
 
     {{-- Impact Section --}}
-    <section class="bg-light py-5 text-center" style="background-color: #FEFAE0;">
+    <section class="py-5 text-center" style="background-color: #E6DFD0;">
         <div class="container">
             <h2 class="mb-4">Our Impact</h2>
             <div class="row">
