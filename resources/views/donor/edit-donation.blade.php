@@ -13,7 +13,7 @@
     
     <style>
         body {
-            background-color: #f4f6f9;
+            background-color: #F5F5DC;
             font-family: 'Arial', sans-serif;
         }
         .donation-form-container {
@@ -35,6 +35,11 @@
             justify-content: space-between;
             align-items: center;
         }
+        .best-before-info {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
@@ -42,7 +47,7 @@
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
         <div class="container-fluid">
             <a class="navbar-brand d-flex align-items-center" href="{{ route('donor.dashboard') }}">
-                <img src="{{ asset('foodbridge-icon.svg') }}" alt="FoodBridge Logo" height="40" class="me-2">
+                <img src="{{ asset('icon.png') }}" alt="FoodBridge Logo" height="40" class="me-2">
                 <span class="fw-bold" style="color: #4A5568; font-size: 1.25rem;">FoodBridge</span>
             </a>
             <div class="ms-auto">
@@ -108,7 +113,13 @@
 
                     <div class="col-md-6 mb-3">
                         <label for="best_before" class="form-label">Best Before Date</label>
-                        <input type="date" class="form-control @error('best_before') is-invalid @enderror" id="best_before" name="best_before" required value="{{ old('best_before', $donation->best_before) }}">
+                        <input type="date" class="form-control @error('best_before') is-invalid @enderror" id="best_before" name="best_before" required 
+                               value="{{ old('best_before', $donation->best_before->format('Y-m-d')) }}"
+                               min="{{ now()->format('Y-m-d') }}">
+                        <div class="best-before-info">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Original Date: {{ $donation->best_before->format('d M Y') }}
+                        </div>
                         @error('best_before')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -162,5 +173,16 @@
 
     {{-- Bootstrap JS --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    {{-- Date Validation Script --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const bestBeforeInput = document.getElementById('best_before');
+            
+            // Set min date to today
+            const today = new Date().toISOString().split('T')[0];
+            bestBeforeInput.min = today;
+        });
+    </script>
 </body>
 </html>

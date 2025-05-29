@@ -6,6 +6,7 @@ use App\Models\Donation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Cache;
 
 class DonationController extends Controller
 {
@@ -54,6 +55,9 @@ class DonationController extends Controller
             'additional_instructions' => $request->additional_instructions,
             'status' => 'available'
         ]);
+
+        // Clear any cached dashboard data for the user
+        Cache::forget('donor_dashboard_' . Auth::id());
 
         // Redirect with success message
         return redirect()->route('donor.donations.index')
@@ -119,6 +123,9 @@ class DonationController extends Controller
             'additional_instructions'
         ]));
 
+        // Clear cached dashboard data
+        Cache::forget('donor_dashboard_' . Auth::id());
+
         // Redirect with success message
         return redirect()->route('donor.donations.index')
             ->with('success', 'Donation updated successfully');
@@ -134,6 +141,9 @@ class DonationController extends Controller
 
         // Delete the donation
         $donation->delete();
+
+        // Clear cached dashboard data
+        Cache::forget('donor_dashboard_' . Auth::id());
 
         // Redirect with success message
         return redirect()->route('donor.donations.index')

@@ -5,6 +5,7 @@ namespace App\Policies;
 use App\Models\User;
 use App\Models\Donation;
 use Illuminate\Auth\Access\HandlesAuthorization;
+use Carbon\Carbon;
 
 class DonationPolicy
 {
@@ -16,9 +17,10 @@ class DonationPolicy
     public function update(User $user, Donation $donation)
     {
         // Only the donor who created the donation can update it
-        // And only if the donation is not completed
+        // And only if the donation is not completed or expired
         return $user->id === $donation->user_id && 
-               $donation->status !== 'completed';
+               $donation->status !== 'completed' && 
+               !$donation->isExpired();
     }
 
     /**
@@ -27,7 +29,7 @@ class DonationPolicy
     public function delete(User $user, Donation $donation)
     {
         // Only the donor who created the donation can delete it
-        // And only if the donation is still available
+        // And only if the donation is available (not reserved or completed)
         return $user->id === $donation->user_id && 
                $donation->status === 'available';
     }

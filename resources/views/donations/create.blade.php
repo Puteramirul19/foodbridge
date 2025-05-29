@@ -13,7 +13,7 @@
     
     <style>
         body {
-            background-color: #f4f6f9;
+            background-color: #F5F5DC;
             font-family: 'Arial', sans-serif;
         }
         .donation-form-container {
@@ -39,7 +39,7 @@
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
         <div class="container-fluid">
             <a class="navbar-brand d-flex align-items-center" href="{{ route('donor.dashboard') }}">
-                <img src="{{ asset('foodbridge-icon.svg') }}" alt="FoodBridge Logo" height="40" class="me-2">
+                <img src="{{ asset('icon.png') }}" alt="FoodBridge Logo" height="30" class="me-2">
                 <span class="fw-bold" style="color: #4A5568; font-size: 1.25rem;">FoodBridge</span>
             </a>
             <div class="ms-auto">

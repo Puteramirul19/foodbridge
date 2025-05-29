@@ -16,13 +16,23 @@
     
     <style>
         body {
-            background-color: #f4f6f9;
+            background-color: #F5F5DC;
             font-family: 'Arial', sans-serif;
         }
         .dashboard-container {
             max-width: 1200px;
             margin: 30px auto;
             padding: 20px;
+        }
+        .welcome-header {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         .stat-card {
             background-color: white;
@@ -40,6 +50,14 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
+        }
+        .btn-disabled {
+            pointer-events: none;
+            opacity: 0.5;
+        }
+        .expiration-warning {
+            font-size: 0.8rem;
+            color: #dc3545;
         }
     </style>
 </head>
@@ -70,8 +88,8 @@
 
     <div class="container dashboard-container">
         {{-- Welcome Section --}}
-        <div class="stat-card bg-primary text-white mb-4">
-            <div class="d-flex justify-content-between align-items-center">
+        <div class="welcome-header">
+            <div class="d-flex justify-content-between align-items-center w-100">
                 <div>
                     <h2>Welcome, {{ Auth::user()->name }}!</h2>
                     <p>Thank you for helping reduce food waste and support your community.</p>
@@ -136,6 +154,7 @@
                                 <th>Food Description</th>
                                 <th>Category</th>
                                 <th>Servings</th>
+                                <th>Best Before</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
@@ -147,6 +166,14 @@
                                     <td>{{ ucfirst(str_replace('_', ' ', $donation->food_category)) }}</td>
                                     <td>{{ $donation->estimated_servings }}</td>
                                     <td>
+                                        {{ \Carbon\Carbon::parse($donation->best_before)->format('d M Y') }}
+                                        @if($donation->isExpired())
+                                            <br><span class="expiration-warning">
+                                                <i class="fas fa-exclamation-triangle"></i> Expired
+                                            </span>
+                                        @endif
+                                    </td>
+                                    <td>
                                         <span class="badge bg-{{ 
                                             $donation->status == 'available' ? 'success' : 
                                             ($donation->status == 'reserved' ? 'warning' : 'secondary')
@@ -156,10 +183,19 @@
                                     </td>
                                     <td>
                                         <div class="btn-group" role="group">
-                                            <a href="{{ route('donor.donations.edit', $donation) }}" 
-                                               class="btn btn-sm btn-outline-primary">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
+                                            {{-- Edit Button --}}
+                                            @if(!$donation->isExpired() && $donation->status === 'available')
+                                                <a href="{{ route('donor.donations.edit', $donation) }}" 
+                                                   class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                            @else
+                                                <button class="btn btn-sm btn-outline-primary btn-disabled" 
+                                                        disabled 
+                                                        title="{{ $donation->isExpired() ? 'Cannot edit expired donation' : 'Cannot edit reserved/completed donation' }}">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                            @endif
                                         </div>
                                     </td>
                                 </tr>

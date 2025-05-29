@@ -13,7 +13,7 @@
     
     <style>
         body {
-            background-color: #f4f6f9;
+            background-color: #F5F5DC;
             font-family: 'Arial', sans-serif;
         }
         .donations-container {
@@ -56,6 +56,14 @@
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
+        .btn-disabled {
+            pointer-events: none;
+            opacity: 0.5;
+        }
+        .expiration-warning {
+            font-size: 0.8rem;
+            color: #dc3545;
+        }
     </style>
 </head>
 <body>
@@ -63,7 +71,7 @@
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
         <div class="container-fluid">
             <a class="navbar-brand d-flex align-items-center" href="{{ route('donor.dashboard') }}">
-                <img src="{{ asset('foodbridge-icon.svg') }}" alt="FoodBridge Logo" height="40" class="me-2">
+                <img src="{{ asset('icon.png') }}" alt="FoodBridge Logo" height="40" class="me-2">
                 <span class="fw-bold" style="color: #4A5568; font-size: 1.25rem;">FoodBridge</span>
             </a>
             <div class="ms-auto">
@@ -124,7 +132,14 @@
                                 <td>{{ ucfirst(str_replace('_', ' ', $donation->food_category)) }}</td>
                                 <td>{{ Str::limit($donation->food_description, 30) }}</td>
                                 <td>{{ $donation->estimated_servings }}</td>
-                                <td>{{ \Carbon\Carbon::parse($donation->best_before)->format('d M Y') }}</td>
+                                <td>
+                                    {{ \Carbon\Carbon::parse($donation->best_before)->format('d M Y') }}
+                                    @if($donation->isExpired())
+                                        <br><span class="expiration-warning">
+                                            <i class="fas fa-exclamation-triangle"></i> Expired
+                                        </span>
+                                    @endif
+                                </td>
                                 <td>
                                     <span class="status-badge bg-{{ 
                                         $donation->status == 'available' ? 'success' : 
@@ -135,19 +150,38 @@
                                 </td>
                                 <td class="actions-column">
                                     <div class="btn-group" role="group">
-                                        <a href="{{ route('donor.donations.edit', $donation) }}" 
-                                           class="btn btn-sm btn-outline-primary">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <form action="{{ route('donor.donations.destroy', $donation) }}" 
-                                              method="POST" class="d-inline" 
-                                              onsubmit="return confirm('Are you sure you want to delete this donation?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        {{-- Edit Button --}}
+                                        @if(!$donation->isExpired() && $donation->status === 'available')
+                                            <a href="{{ route('donor.donations.edit', $donation) }}" 
+                                               class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                        @else
+                                            <button class="btn btn-sm btn-outline-primary btn-disabled" 
+                                                    disabled 
+                                                    title="{{ $donation->isExpired() ? 'Cannot edit expired donation' : 'Cannot edit reserved/completed donation' }}">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                        @endif
+
+                                        {{-- Delete Button --}}
+                                        @if($donation->status === 'available' && !$donation->isExpired())
+                                            <form action="{{ route('donor.donations.destroy', $donation) }}" 
+                                                  method="POST" class="d-inline" 
+                                                  onsubmit="return confirm('Are you sure you want to delete this donation?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        @else
+                                            <button class="btn btn-sm btn-outline-danger btn-disabled" 
+                                                    disabled 
+                                                    title="{{ $donation->isExpired() ? 'Cannot delete expired donation' : 'Cannot delete reserved/completed donation' }}">
                                                 <i class="fas fa-trash"></i>
                                             </button>
-                                        </form>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
