@@ -60,8 +60,8 @@ Route::middleware(['auth', 'active', 'role:recipient'])->prefix('recipient')->na
         ->name('reservations.cancel');
 
     // Reserve a specific donation
-    Route::post('/donations/{donation}/reserve', [ReservationController::class, 'store'])
-        ->name('donations.reserve');
+    Route::post('/donations/{donation}/accept', [ReservationController::class, 'store'])
+        ->name('donations.accept');
 });
 
 // Admin Routes (protected)

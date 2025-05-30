@@ -116,14 +116,13 @@ class ReservationController extends Controller
             'donor_name' => $reservation->donation->donor->name,
             'recipient_name' => $reservation->recipient->name,
             'food_description' => $reservation->donation->food_description,
-            'pickup_date' => $reservation->pickup_date,
+            'pickup_date' => $reservation->pickup_date->format('d M Y'),
             'pickup_time' => $reservation->pickup_time,
             'pickup_location' => $reservation->donation->pickup_location
         ];
 
         // Use a QR code library to generate the QR code
         // For this example, we'll use a simple approach
-        // In a real application, you'd use a library like endroid/qr-code
         $qrCodeString = json_encode($qrData);
 
         return view('reservations.qr-code', [

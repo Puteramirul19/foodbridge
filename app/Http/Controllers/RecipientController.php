@@ -77,19 +77,9 @@ class RecipientController extends Controller
             $query->where('food_category', $request->food_category);
         }
 
-        // Filter by proximity (mock implementation, would need geolocation in real app)
-        if ($request->has('max_distance')) {
-            // TODO: Implement actual geolocation filtering
-        }
-
         // Search by description
         if ($request->has('search') && $request->search != '') {
             $query->where('food_description', 'LIKE', '%' . $request->search . '%');
-        }
-
-        // Show expired donations if explicitly requested (for debugging/admin purposes)
-        if ($request->has('show_expired') && $request->show_expired == '1') {
-            $query = Donation::where('status', 'available'); // Remove date filter
         }
 
         // Order by best_before date (most urgent first)
