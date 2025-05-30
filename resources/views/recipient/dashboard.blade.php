@@ -16,45 +16,67 @@
     
     <style>
         body {
-            background-color: #FAF0E6;
-            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #FAF0E6 0%, #F5E6D3 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
         }
+        
         .dashboard-container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 30px auto;
             padding: 20px;
         }
+        
         .dashboard-header {
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            border-radius: 12px;
-            padding: 20px;
+            border-radius: 20px;
+            padding: 30px;
             margin-bottom: 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        .stats-container {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        .stat-card {
-            background-color: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-            text-align: center;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             position: relative;
             overflow: hidden;
         }
+        
+        .dashboard-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 200%;
+            background: rgba(255,255,255,0.1);
+            transform: rotate(45deg);
+        }
+        
+        .dashboard-header .content {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
         .stat-card:hover {
             transform: translateY(-10px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
         }
+        
         .stat-card::before {
             content: '';
             position: absolute;
@@ -62,63 +84,225 @@
             left: 0;
             width: 100%;
             height: 5px;
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
+        
+        .stat-card .stat-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 24px;
+            color: white;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        
         .stat-card h3 {
-            color: #2575fc;
+            color: #2c3e50;
             font-size: 2.5rem;
             margin-bottom: 10px;
-            font-weight: bold;
+            font-weight: 700;
         }
+        
         .stat-card p {
-            color: #4A5568;
-            font-weight: bold;
+            color: #6c757d;
+            font-weight: 600;
             margin-bottom: 0;
+            font-size: 1.1rem;
         }
-        .stat-card i {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            color: #2575fc;
-            opacity: 0.5;
-            font-size: 2rem;
-        }
+        
         .action-buttons {
             display: flex;
             justify-content: center;
-            gap: 15px;
+            gap: 20px;
             margin-bottom: 30px;
+            flex-wrap: wrap;
         }
-        .action-buttons .btn {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 12px 20px;
-            border-radius: 8px;
+        
+        .btn-action {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            border: none;
+            border-radius: 15px;
+            padding: 15px 30px;
+            font-weight: 600;
+            color: white;
             transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.3);
         }
-        .action-buttons .btn:hover {
+        
+        .btn-action:hover {
             transform: translateY(-3px);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 25px rgba(79, 172, 254, 0.4);
+            color: white;
         }
-        .chart-container {
-            background-color: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+        
+        .btn-action-secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            box-shadow: 0 5px 15px rgba(240, 147, 251, 0.3);
         }
-        .recent-reservations {
-            background-color: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-            padding: 20px;
+        
+        .btn-action-secondary:hover {
+            box-shadow: 0 8px 25px rgba(240, 147, 251, 0.4);
         }
+        
+        .section-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+        
+        .section-header {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 25px 30px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+        
+        .section-title {
+            color: #2c3e50;
+            font-weight: 700;
+            margin: 0;
+            font-size: 1.4rem;
+        }
+        
+        .section-body {
+            padding: 30px;
+        }
+        
+        .table-modern {
+            border: none;
+            margin: 0;
+        }
+        
+        .table-modern thead th {
+            border: none;
+            background: #f8f9fa;
+            color: #2c3e50;
+            font-weight: 600;
+            padding: 15px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .table-modern tbody td {
+            border: none;
+            padding: 20px 15px;
+            vertical-align: middle;
+            border-bottom: 1px solid #f1f3f4;
+        }
+        
+        .table-modern tbody tr:hover {
+            background-color: #f8f9fa;
+            transform: scale(1.01);
+            transition: all 0.2s ease;
+        }
+        
+        .status-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .badge-pending {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+            color: #d63031;
+        }
+        
+        .badge-completed {
+            background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
+            color: white;
+        }
+        
         .empty-state {
             text-align: center;
-            padding: 50px;
-            background-color: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            padding: 60px 40px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 20px;
+            margin: 20px 0;
+        }
+        
+        .empty-icon {
+            color: #bdc3c7;
+            margin-bottom: 20px;
+        }
+        
+        .chart-container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .chart-title {
+            color: #2c3e50;
+            font-weight: 700;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+        
+        .btn-view-all {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            color: #2c3e50;
+            border: none;
+            border-radius: 10px;
+            padding: 8px 20px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-view-all:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            color: #2c3e50;
+        }
+        
+        .btn-eye {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-eye:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard-container {
+                padding: 10px;
+            }
+            
+            .dashboard-header {
+                padding: 20px;
+            }
+            
+            .stats-container {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
         }
     </style>
 </head>
@@ -126,7 +310,7 @@
     {{-- Navigation --}}
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
         <div class="container-fluid">
-            <a class="navbar-brand d-flex align-items-center" href="{{ route('admin.dashboard') }}">
+            <a class="navbar-brand d-flex align-items-center" href="{{ route('recipient.dashboard') }}">
                 <img src="{{ asset('icon.png') }}" alt="FoodBridge Logo" height="30" class="me-2">
                 <span class="fw-bold" style="color: #4A5568; font-size: 1.25rem;">FoodBridge</span>
             </a>
@@ -147,32 +331,42 @@
     <div class="container-fluid dashboard-container">
         {{-- Welcome Section --}}
         <div class="dashboard-header">
-            <div>
-                <h1 class="mb-2">Recipient Dashboard</h1>
-                <p class="mb-0">Track and manage your food donations</p>
-            </div>
-            <div class="text-end">
-                <span class="badge bg-light text-dark p-2">
-                    <i class="fas fa-clock me-2"></i>
-                    {{ now()->format('D, M d Y') }}
-                </span>
+            <div class="content d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="mb-3">
+                        <i class="fas fa-heart me-3"></i>Welcome to Your Dashboard
+                    </h1>
+                    <p class="mb-0 fs-5">Track your donations and discover new opportunities to get nutritious food</p>
+                </div>
+                <div class="text-end">
+                    <div class="badge bg-light text-dark p-3" style="font-size: 1rem;">
+                        <i class="fas fa-calendar-alt me-2"></i>
+                        {{ now()->format('D, M d Y') }}
+                    </div>
+                </div>
             </div>
         </div>
 
         {{-- Statistics Cards --}}
         <div class="stats-container">
             <div class="stat-card">
-                <i class="fas fa-shopping-basket"></i>
+                <div class="stat-icon">
+                    <i class="fas fa-shopping-basket"></i>
+                </div>
                 <h3>{{ $stats['totalReservations'] }}</h3>
                 <p>Total Donations</p>
             </div>
             <div class="stat-card">
-                <i class="fas fa-spinner"></i>
+                <div class="stat-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
                 <h3>{{ $stats['activeReservations'] }}</h3>
                 <p>Pending Pickups</p>
             </div>
             <div class="stat-card">
-                <i class="fas fa-check-circle"></i>
+                <div class="stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
                 <h3>{{ $stats['completedReservations'] }}</h3>
                 <p>Collected Donations</p>
             </div>
@@ -180,90 +374,113 @@
 
         {{-- Action Buttons --}}
         <div class="action-buttons">
-            <a href="{{ route('recipient.donations.browse') }}" class="btn btn-primary">
+            <a href="{{ route('recipient.donations.browse') }}" class="btn btn-action">
                 <i class="fas fa-search me-2"></i>Browse Donations
             </a>
-            <a href="{{ route('recipient.reservations') }}" class="btn btn-outline-primary">
+            <a href="{{ route('recipient.reservations') }}" class="btn btn-action btn-action-secondary">
                 <i class="fas fa-list-alt me-2"></i>My Reservations
             </a>
         </div>
 
         {{-- Recent Reservations --}}
-        <div class="recent-reservations">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h3>Recent Reservations</h3>
-                <a href="{{ route('recipient.reservations') }}" class="btn btn-sm btn-outline-primary">
-                    View All
+        <div class="section-card">
+            <div class="section-header">
+                <h3 class="section-title">
+                    <i class="fas fa-history me-2"></i>Recent Reservations
+                </h3>
+                <a href="{{ route('recipient.reservations') }}" class="btn btn-view-all">
+                    <i class="fas fa-arrow-right me-1"></i>View All
                 </a>
             </div>
 
-            @if($reservations->isEmpty())
-                <div class="empty-state">
-                    <i class="fas fa-box-open fa-4x text-muted mb-4"></i>
-                    <h3>No Donations Yet</h3>
-                    <p>Start by browsing available donations in your area.</p>
-                    <a href="{{ route('recipient.donations.browse') }}" class="btn btn-primary">
-                        <i class="fas fa-search me-2"></i>Browse Donations
-                    </a>
-                </div>
-            @else
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Food Description</th>
-                                <th>Donor</th>
-                                <th>Pickup Date</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($reservations as $reservation)
+            <div class="section-body">
+                @if($reservations->isEmpty())
+                    <div class="empty-state">
+                        <i class="fas fa-box-open fa-5x empty-icon"></i>
+                        <h3 class="mt-3 mb-2">No Donations Yet</h3>
+                        <p class="text-muted fs-5 mb-4">Start by browsing available donations in your area and make your first reservation.</p>
+                        <a href="{{ route('recipient.donations.browse') }}" class="btn btn-action">
+                            <i class="fas fa-search me-2"></i>Browse Donations
+                        </a>
+                    </div>
+                @else
+                    <div class="table-responsive">
+                        <table class="table table-modern">
+                            <thead>
                                 <tr>
-                                    <td>
-                                        {{ Str::limit($reservation->donation->food_description, 30) }}
-                                        <small class="d-block text-muted">
-                                            {{ ucfirst(str_replace('_', ' ', $reservation->donation->food_category)) }}
-                                        </small>
-                                    </td>
-                                    <td>{{ $reservation->donation->donor->name }}</td>
-                                    <td>
-                                        <i class="fas fa-calendar me-2"></i>
-                                        {{ $reservation->pickup_date->format('d M Y') }}
-                                    </td>
-                                    <td>
-                                        <span class="badge 
-                                        {{ $reservation->status == 'pending' ? 'bg-warning' : 
-                                           ($reservation->status == 'completed' ? 'bg-success' : 'bg-secondary') }}">
-                                            {{ ucfirst($reservation->status) }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <a href="{{ route('recipient.reservations.details', $reservation) }}" 
-                                           class="btn btn-sm btn-outline-primary">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                    </td>
+                                    <th>Food Description</th>
+                                    <th>Donor</th>
+                                    <th>Pickup Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
                                 </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            @endif
+                            </thead>
+                            <tbody>
+                                @foreach($reservations as $reservation)
+                                    <tr>
+                                        <td>
+                                            <div>
+                                                <strong>{{ Str::limit($reservation->donation->food_description, 40) }}</strong>
+                                                <small class="d-block text-muted mt-1">
+                                                    <i class="fas fa-tag me-1"></i>
+                                                    {{ ucfirst(str_replace('_', ' ', $reservation->donation->food_category)) }}
+                                                </small>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="rounded-circle bg-primary text-white me-2 d-flex align-items-center justify-content-center" 
+                                                     style="width: 35px; height: 35px; font-size: 0.8rem;">
+                                                    {{ strtoupper(substr($reservation->donation->donor->name, 0, 2)) }}
+                                                </div>
+                                                {{ $reservation->donation->donor->name }}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div>
+                                                <i class="fas fa-calendar me-2 text-primary"></i>
+                                                {{ $reservation->pickup_date->format('d M Y') }}
+                                                <small class="d-block text-muted mt-1">
+                                                    <i class="fas fa-clock me-1"></i>{{ $reservation->pickup_time }}
+                                                </small>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="status-badge {{ $reservation->status == 'pending' ? 'badge-pending' : 'badge-completed' }}">
+                                                <i class="fas {{ $reservation->status == 'pending' ? 'fa-clock' : 'fa-check' }} me-1"></i>
+                                                {{ ucfirst($reservation->status) }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <a href="{{ route('recipient.reservations.details', $reservation) }}" 
+                                               class="btn btn-eye btn-sm">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @endif
+            </div>
         </div>
 
-        {{-- Reservation Trends --}}
-        <div class="row mt-4">
-            <div class="col-md-6">
+        {{-- Charts Row --}}
+        <div class="row">
+            <div class="col-lg-6 mb-4">
                 <div class="chart-container">
-                    <h3 class="mb-3">Reservation Status</h3>
+                    <h3 class="chart-title">
+                        <i class="fas fa-chart-pie me-2"></i>Reservation Status
+                    </h3>
                     <canvas id="reservationStatusChart"></canvas>
                 </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-lg-6 mb-4">
                 <div class="chart-container">
-                    <h3 class="mb-3">Monthly Reservations</h3>
+                    <h3 class="chart-title">
+                        <i class="fas fa-chart-line me-2"></i>Monthly Activity
+                    </h3>
                     <canvas id="monthlyReservationsChart"></canvas>
                 </div>
             </div>
@@ -275,10 +492,24 @@
 
     {{-- Charts Script --}}
     <script>
+        // Modern color palette
+        const colors = {
+            primary: ['#667eea', '#764ba2'],
+            success: ['#00b894', '#00cec9'],
+            warning: ['#fdcb6e', '#e17055'],
+            info: ['#74b9ff', '#0984e3'],
+            gradient: function(ctx, color1, color2) {
+                const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+                gradient.addColorStop(0, color1);
+                gradient.addColorStop(1, color2);
+                return gradient;
+            }
+        };
+
         // Reservation Status Chart
         const statusCtx = document.getElementById('reservationStatusChart').getContext('2d');
         new Chart(statusCtx, {
-            type: 'pie',
+            type: 'doughnut',
             data: {
                 labels: ['Pending', 'Completed', 'Other'],
                 datasets: [{
@@ -288,17 +519,37 @@
                         {{ $stats['totalReservations'] - ($stats['activeReservations'] + $stats['completedReservations']) }}
                     ],
                     backgroundColor: [
-                        '#FFC107', // Pending (Yellow)
-                        '#28A745', // Completed (Green)
-                        '#6C757D'  // Other (Gray)
-                    ]
+                        colors.gradient(statusCtx, '#fdcb6e', '#e17055'),
+                        colors.gradient(statusCtx, '#00b894', '#00cec9'),
+                        colors.gradient(statusCtx, '#ddd', '#bbb')
+                    ],
+                    borderWidth: 0,
+                    cutout: '60%'
                 }]
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: true,
                 plugins: {
                     legend: {
-                        position: 'bottom'
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true,
+                            font: {
+                                size: 12,
+                                weight: '600'
+                            }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0,0,0,0.8)',
+                        titleColor: 'white',
+                        bodyColor: 'white',
+                        borderColor: 'rgba(255,255,255,0.1)',
+                        borderWidth: 1,
+                        cornerRadius: 8,
+                        displayColors: false
                     }
                 }
             }
@@ -306,8 +557,12 @@
 
         // Monthly Reservations Chart
         const monthlyCtx = document.getElementById('monthlyReservationsChart').getContext('2d');
+        const gradient = monthlyCtx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(102, 126, 234, 0.8)');
+        gradient.addColorStop(1, 'rgba(118, 75, 162, 0.1)');
+
         new Chart(monthlyCtx, {
-            type: 'bar',
+            type: 'line',
             data: {
                 labels: [
                     @foreach($monthNames as $monthName)
@@ -321,24 +576,60 @@
                             {{ $count }},
                         @endforeach
                     ],
-                    backgroundColor: 'rgba(37, 117, 252, 0.6)'
+                    borderColor: '#667eea',
+                    backgroundColor: gradient,
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#667eea',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 6,
+                    pointHoverRadius: 8
                 }]
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0,0,0,0.8)',
+                        titleColor: 'white',
+                        bodyColor: 'white',
+                        borderColor: 'rgba(255,255,255,0.1)',
+                        borderWidth: 1,
+                        cornerRadius: 8,
+                        displayColors: false
+                    }
+                },
                 scales: {
                     y: {
                         beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Number of Reservations'
+                        grid: {
+                            color: 'rgba(0,0,0,0.05)'
+                        },
+                        ticks: {
+                            color: '#6c757d',
+                            font: {
+                                size: 11,
+                                weight: '500'
+                            }
                         }
-                    }
-                },
-                plugins: {
-                    title: {
-                        display: true,
-                        text: 'Monthly Reservation Trends'
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            color: '#6c757d',
+                            font: {
+                                size: 11,
+                                weight: '500'
+                            }
+                        }
                     }
                 }
             }

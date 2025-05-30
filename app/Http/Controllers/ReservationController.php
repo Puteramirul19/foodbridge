@@ -24,7 +24,15 @@ class ReservationController extends Controller
         // Validate reservation details
         $validator = Validator::make($request->all(), [
             'pickup_time' => 'required|date_format:H:i',
-            'pickup_date' => 'required|date|after_or_equal:today'
+            'pickup_date' => [
+                'required', 
+                'date', 
+                'after_or_equal:today', 
+                'before_or_equal:' . $donation->best_before->format('Y-m-d')
+            ]
+        ], [
+            'pickup_date.after_or_equal' => 'Pickup date must be today or later.',
+            'pickup_date.before_or_equal' => 'Pickup date cannot be after the donation\'s best before date.'
         ]);
 
         if ($validator->fails()) {
@@ -40,7 +48,7 @@ class ReservationController extends Controller
 
         if ($existingReservation) {
             return redirect()->back()
-                ->with('error', 'You have already reserved this donation.');
+                ->with('error', 'You have already requested this donation.');
         }
 
         // Create reservation

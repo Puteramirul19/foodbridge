@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Reservations - FoodBridge</title>
+    <title>My Food Requests - FoodBridge</title>
     
     {{-- Bootstrap CSS --}}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -92,13 +92,13 @@
         {{-- Page Header --}}
         <div class="page-header">
             <div>
-                <h1 class="mb-2">My Reservations</h1>
-                <p class="mb-0">Track and manage your food donations</p>
+                <h1 class="mb-2">My Food Requests</h1>
+                <p class="mb-0">Track and manage your food donation requests</p>
             </div>
             <div>
                 <span class="badge bg-light text-dark p-2">
                     <i class="fas fa-shopping-basket me-2"></i>
-                    Total Reservations: {{ $reservations->total() }}
+                    Total Food Requested: {{ $reservations->total() }}
                 </span>
             </div>
         </div>
@@ -209,14 +209,8 @@
                             @endforeach
                         </tbody>
                     </table>
-                </div>
-                
-                <div class="card-footer d-flex justify-content-between align-items-center">
-                    {{ $reservations->appends(request()->input())->links() }}
-                    <a href="{{ route('recipient.donations.browse') }}" class="btn btn-sm btn-primary">
-                        <i class="fas fa-plus me-2"></i>New Reservation
-                    </a>
-                </div>
+                </div>        
+                <div class="card-footer d-flex justify-content-between align-items-center"></div>
             </div>
         @endif
     </div>
