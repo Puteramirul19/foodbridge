@@ -13,80 +13,135 @@
     
     <style>
         body {
-            background-color: #FAF0E6;
-            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #FAF0E6 0%, #F5E6D3 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
         }
+        
         .container {
-            max-width: 1100px; /* Constrain maximum width */
+            max-width: 1100px;
         }
+        
         .donations-form-container {
-            background-color: white;
-            border-radius: 15px;
+            background: white;
+            border-radius: 20px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            overflow: hidden;
         }
+        
         .form-header {
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 25px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-top-left-radius: 15px;
-            border-top-right-radius: 15px;
         }
+        
         .details-section {
             display: flex;
             gap: 25px;
             padding: 30px;
         }
+        
         .main-details {
             flex: 2;
         }
+        
         .sidebar-details {
             flex: 1;
             display: flex;
             flex-direction: column;
             gap: 20px;
         }
+        
         .info-card {
-            background-color: white;
-            border-radius: 12px;
+            background: white;
+            border-radius: 15px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.05);
             border: 1px solid rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
         }
+        
+        .info-card:hover {
+            transform: translateY(-5px);
+        }
+        
         .info-card-header {
-            background-color: #f8f9fa;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
             padding: 15px;
             border-bottom: 1px solid rgba(0,0,0,0.1);
             display: flex;
             align-items: center;
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
         }
+        
         .info-card-header i {
             margin-right: 10px;
-            color: #6a11cb;
+            color: #667eea;
         }
+        
         .info-table {
             margin: 0;
         }
+        
         .info-table th {
             width: 40%;
             color: #6c757d;
             font-weight: 500;
             padding: 12px 15px;
+            background: #f8f9fa;
         }
+        
         .info-table td {
             color: #212529;
             padding: 12px 15px;
         }
+        
         .action-buttons {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 15px;
         }
+        
         .action-buttons .btn {
             display: flex;
             align-items: center;
             justify-content: center;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            border: none;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255,107,107,0.4);
+        }
+        
+        .btn-outline-secondary {
+            border-color: #667eea;
+            color: #667eea;
+        }
+        
+        .btn-outline-secondary:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .details-section {
+                flex-direction: column;
+            }
+            
+            .main-details, .sidebar-details {
+                flex: none;
+            }
         }
     </style>
 </head>
@@ -94,7 +149,7 @@
     {{-- Navigation --}}
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
         <div class="container-fluid">
-            <a class="navbar-brand d-flex align-items-center" href="{{ route('admin.dashboard') }}">
+            <a class="navbar-brand d-flex align-items-center" href="{{ route('recipient.dashboard') }}">
                 <img src="{{ asset('icon.png') }}" alt="FoodBridge Logo" height="30" class="me-2">
                 <span class="fw-bold" style="color: #4A5568; font-size: 1.25rem;">FoodBridge</span>
             </a>
@@ -142,7 +197,7 @@
                             <tr>
                                 <th>Food Category</th>
                                 <td>
-                                    <span class="badge" style="background-color: #6a70ff;">
+                                    <span class="badge" style="background-color: #667eea; color: white;">
                                         {{ ucfirst(str_replace('_', ' ', $reservation->donation->food_category)) }}
                                     </span>
                                 </td>
@@ -196,7 +251,7 @@
                             <tr>
                                 <th>Pickup Type</th>
                                 <td>
-                                    <span class="badge bg-info">
+                                    <span class="badge" style="background-color: #667eea; color: white;">
                                         {{ ucfirst($reservation->donation->donation_type) }}
                                     </span>
                                 </td>
