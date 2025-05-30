@@ -16,7 +16,7 @@
     
     <style>
         body {
-            background-color: #f4f6f9;
+            background-color: #FAF0E6;
             font-family: 'Arial', sans-serif;
         }
         .dashboard-container {
@@ -127,7 +127,7 @@
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
         <div class="container-fluid">
             <a class="navbar-brand d-flex align-items-center" href="{{ route('admin.dashboard') }}">
-                <img src="{{ asset('icon.png') }}" alt="FoodBridge Logo" height="40" class="me-2">
+                <img src="{{ asset('icon.png') }}" alt="FoodBridge Logo" height="30" class="me-2">
                 <span class="fw-bold" style="color: #4A5568; font-size: 1.25rem;">FoodBridge</span>
             </a>
             <div class="ms-auto">
@@ -183,7 +183,7 @@
             <a href="{{ route('recipient.donations.browse') }}" class="btn btn-primary">
                 <i class="fas fa-search me-2"></i>Browse Donations
             </a>
-            <a href="{{ route('recipient.reservations') }}" class="btn btn-outline-secondary">
+            <a href="{{ route('recipient.reservations') }}" class="btn btn-outline-primary">
                 <i class="fas fa-list-alt me-2"></i>My Reservations
             </a>
         </div>

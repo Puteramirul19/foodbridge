@@ -13,7 +13,7 @@
     
     <style>
         body {
-            background-color: #f4f6f9;
+            background-color: #F2EDE4;
             font-family: 'Arial', sans-serif;
         }
         .users-container {
