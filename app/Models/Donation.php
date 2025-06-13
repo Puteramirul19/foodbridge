@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class Donation extends Model
 {
@@ -159,17 +161,39 @@ class Donation extends Model
     }
 
     /**
+     * Manually update expired donations
+     */
+    public static function updateExpiredDonations()
+    {
+        try {
+            // Use a raw update to minimize memory usage
+            $updatedCount = DB::table('donations')
+                ->where('status', 'available')
+                ->where('best_before', '<', now())
+                ->update(['status' => 'expired']);
+
+            if ($updatedCount > 0) {
+                Log::info("Updated {$updatedCount} donations to expired status.");
+            }
+
+            return $updatedCount;
+        } catch (\Exception $e) {
+            Log::error('Failed to update expired donations: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
      * Boot method to handle model events
      */
-    protected static function boot()
+    protected static function booted()
     {
         parent::boot();
 
         // Automatically mark donations as expired when they pass their best_before date
-        static::saving(function ($donation) {
-            if ($donation->isExpired() && $donation->status === 'available') {
-                $donation->status = 'expired';
-            }
+        static::addGlobalScope('updateExpiredStatus', function ($query) {
+            // Trigger update for expired donations
+            self::updateExpiredDonations();
         });
     }
 }
