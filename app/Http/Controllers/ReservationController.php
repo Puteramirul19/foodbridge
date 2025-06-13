@@ -7,6 +7,7 @@ use App\Models\Reservation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Carbon\Carbon;
 
 class ReservationController extends Controller
 {
@@ -27,12 +28,26 @@ class ReservationController extends Controller
             'pickup_date' => [
                 'required', 
                 'date', 
-                'after_or_equal:today', 
-                'before_or_equal:' . $donation->best_before->format('Y-m-d')
+                function ($attribute, $value, $fail) use ($donation) {
+                    // Convert best before and pickup dates to Carbon instances
+                    $bestBefore = Carbon::parse($donation->best_before);
+                    $pickupDate = Carbon::parse($value);
+
+                    // Ensure pickup date is not after best before date
+                    // Allow reservation on the best before date
+                    if ($pickupDate->gt($bestBefore)) {
+                        $fail('Pickup date cannot be after the donation\'s best before date.');
+                    }
+
+                    // Ensure pickup date is today or later
+                    if ($pickupDate->lt(Carbon::today())) {
+                        $fail('Pickup date must be today or later.');
+                    }
+                }
             ]
         ], [
-            'pickup_date.after_or_equal' => 'Pickup date must be today or later.',
-            'pickup_date.before_or_equal' => 'Pickup date cannot be after the donation\'s best before date.'
+            'pickup_date.required' => 'Please select a pickup date.',
+            'pickup_date' => 'Invalid pickup date.'
         ]);
 
         if ($validator->fails()) {
@@ -78,7 +93,7 @@ class ReservationController extends Controller
 
         // Update donation status back to available
         $donation = $reservation->donation;
-        $donation->status = 'available';
+        $donation->status = $donation->determineStatus(); // Use the method to set correct status
         $donation->save();
 
         // Delete the reservation

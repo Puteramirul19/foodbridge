@@ -1,23 +1,18 @@
 <?php
 
-use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
 use App\Models\Donation;
 use Carbon\Carbon;
 
-// Existing inspire command
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote');
-
 // Cleanup expired donations command
 Artisan::command('donations:cleanup-expired {--dry-run : Show what would be updated without actually updating}', function () {
     $this->info('Starting expired donations cleanup...');
 
-    // Find donations that are expired but still marked as available
+    // Find donations that are expired and still marked as available
+    // Now we use subDay() to ensure it's strictly after the best before date
     $expiredDonations = Donation::where('status', 'available')
-        ->where('best_before', '<', Carbon::today())
+        ->where('best_before', '<', Carbon::today()->subDay())
         ->get();
 
     $this->info("Found {$expiredDonations->count()} expired donations to update.");
@@ -52,10 +47,10 @@ Artisan::command('donations:cleanup-expired {--dry-run : Show what would be upda
 
     $this->info("Successfully updated {$updatedCount} expired donations.");
 
-    // Optional: Clean up very old expired donations (e.g., older than 30 days)
-    if ($this->confirm('Do you want to clean up expired donations older than 30 days?')) {
+    // Optional: Clean up very old expired donations (now changed to 10 days)
+    if ($this->confirm('Do you want to clean up expired donations older than 10 days?')) {
         $oldExpiredDonations = Donation::where('status', 'expired')
-            ->where('best_before', '<', Carbon::today()->subDays(30))
+            ->where('best_before', '<', Carbon::today()->subDays(10))
             ->get();
 
         if ($oldExpiredDonations->count() > 0) {
@@ -63,7 +58,7 @@ Artisan::command('donations:cleanup-expired {--dry-run : Show what would be upda
             
             if ($this->confirm('Delete these old expired donations permanently?')) {
                 $deletedCount = Donation::where('status', 'expired')
-                    ->where('best_before', '<', Carbon::today()->subDays(30))
+                    ->where('best_before', '<', Carbon::today()->subDays(10))
                     ->delete();
                 
                 $this->info("Deleted {$deletedCount} old expired donations.");
@@ -80,8 +75,6 @@ Artisan::command('donations:cleanup-expired {--dry-run : Show what would be upda
 
 // Schedule the cleanup to run daily
 Schedule::command('donations:cleanup-expired')->daily()->at('02:00');
-
-// Additional useful commands for your FoodBridge application
 
 // Command to generate donation statistics
 Artisan::command('donations:stats', function () {
@@ -102,47 +95,4 @@ Artisan::command('donations:stats', function () {
             ['Expired', $expired, $total > 0 ? round(($expired/$total)*100, 1).'%' : '0%'],
         ]
     );
-    
-    // Show expiring soon donations
-    $expiringSoon = Donation::where('status', 'available')
-        ->whereBetween('best_before', [Carbon::today(), Carbon::today()->addDays(2)])
-        ->count();
-    
-    if ($expiringSoon > 0) {
-        $this->warn("⚠️  {$expiringSoon} donations are expiring within 2 days!");
-    }
 })->purpose('Display donation statistics');
-
-// Command to send notifications about expiring donations
-Artisan::command('donations:notify-expiring', function () {
-    $expiringSoon = Donation::with('donor')
-        ->where('status', 'available')
-        ->whereBetween('best_before', [Carbon::today(), Carbon::today()->addDays(1)])
-        ->get();
-
-    if ($expiringSoon->isEmpty()) {
-        $this->info('No donations expiring soon.');
-        return;
-    }
-
-    $this->info("Found {$expiringSoon->count()} donations expiring within 1 day:");
-    
-    $this->table(
-        ['ID', 'Donor', 'Food Description', 'Best Before', 'Servings'],
-        $expiringSoon->map(function ($donation) {
-            return [
-                $donation->id,
-                $donation->donor->name,
-                \Str::limit($donation->food_description, 30),
-                $donation->best_before->format('Y-m-d'),
-                $donation->estimated_servings
-            ];
-        })->toArray()
-    );
-
-    // Here you could add email notifications to donors or recipients
-    $this->info('Notification logic would go here (email/SMS to donors and recipients)');
-})->purpose('Notify about donations expiring soon');
-
-// Schedule notifications to run twice daily
-Schedule::command('donations:notify-expiring')->twiceDaily(9, 17);

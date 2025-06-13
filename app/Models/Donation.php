@@ -104,60 +104,35 @@ class Donation extends Model
 
     /**
      * Check if donation is expired
+     * A donation is considered expired only AFTER its best before date
      */
     public function isExpired()
     {
-        return Carbon::parse($this->best_before)->isPast();
-    }
-
-    /**
-     * Check if donation is expiring soon
-     */
-    public function isExpiringSoon($days = 1)
-    {
-        $bestBefore = Carbon::parse($this->best_before);
-        $now = Carbon::now();
-        
-        return !$this->isExpired() && 
-               $now->diffInDays($bestBefore, false) <= $days;
-    }
-
-    /**
-     * Get days left until expiration
-     */
-    public function getDaysUntilExpiration()
-    {
-        $bestBefore = Carbon::parse($this->best_before);
-        $now = Carbon::now();
-        
-        return $now->diffInDays($bestBefore, false);
+        return Carbon::parse($this->best_before)->lt(Carbon::today());
     }
 
     /**
      * Get formatted expiration status
+     * Ensures status is only marked as expired after the best before date
      */
     public function getExpirationStatusAttribute()
     {
-        if ($this->isExpired()) {
+        // If best before date is today or in the future, it's not expired
+        if (Carbon::parse($this->best_before)->isSameDay(Carbon::today()) || 
+            Carbon::parse($this->best_before)->isFuture()) {
             return [
-                'status' => 'expired',
-                'class' => 'text-danger fw-bold',
-                'message' => 'Expired'
-            ];
-        } elseif ($this->isExpiringSoon()) {
-            return [
-                'status' => 'expiring_soon',
-                'class' => 'text-warning fw-bold',
-                'message' => 'Expiring Soon'
-            ];
-        } else {
-            $daysLeft = $this->getDaysUntilExpiration();
-            return [
-                'status' => 'fresh',
+                'status' => 'available',
                 'class' => 'text-success',
-                'message' => $daysLeft . ' days left'
+                'message' => 'Available'
             ];
         }
+
+        // If best before date is in the past, it's expired
+        return [
+            'status' => 'expired',
+            'class' => 'text-danger fw-bold',
+            'message' => 'Expired'
+        ];
     }
 
     /**
@@ -167,9 +142,10 @@ class Donation extends Model
     {
         try {
             // Use a raw update to minimize memory usage
+            // Note: Now only marking as expired when the date is strictly less than today
             $updatedCount = DB::table('donations')
                 ->where('status', 'available')
-                ->where('best_before', '<', now())
+                ->where('best_before', '<', now()->subDay())
                 ->update(['status' => 'expired']);
 
             if ($updatedCount > 0) {
@@ -195,5 +171,22 @@ class Donation extends Model
             // Trigger update for expired donations
             self::updateExpiredDonations();
         });
+    }
+
+    /**
+     * Determine the status of the donation
+     * 
+     * @return string
+     */
+    public function determineStatus()
+    {
+        // If best before date is today or in the future, it's available
+        if (Carbon::parse($this->best_before)->isSameDay(Carbon::today()) || 
+            Carbon::parse($this->best_before)->isFuture()) {
+            return 'available';
+        }
+
+        // If best before date is in the past, it's expired
+        return 'expired';
     }
 }

@@ -43,7 +43,7 @@ class DonationController extends Controller
         }
 
         // Create donation
-        $donation = Donation::create([
+        $donation = new Donation([
             'user_id' => Auth::id(), // Ensure this matches the donor's ID
             'food_category' => $request->food_category,
             'food_description' => $request->food_description,
@@ -52,9 +52,10 @@ class DonationController extends Controller
             'donation_type' => $request->donation_type,
             'pickup_location' => $request->pickup_location,
             'contact_number' => $request->contact_number,
-            'additional_instructions' => $request->additional_instructions,
-            'status' => 'available'
+            'additional_instructions' => $request->additional_instructions
         ]);
+        $donation->status = $donation->determineStatus(); // Determine status before saving
+        $donation->save();
 
         // Clear any cached dashboard data for the user
         Cache::forget('donor_dashboard_' . Auth::id());
@@ -123,7 +124,7 @@ class DonationController extends Controller
         }
 
         // Update donation
-        $donation->update($request->only([
+        $donation->fill($request->only([
             'food_category',
             'food_description',
             'estimated_servings',
@@ -133,6 +134,10 @@ class DonationController extends Controller
             'contact_number',
             'additional_instructions'
         ]));
+
+        // Determine and set the status
+        $donation->status = $donation->determineStatus();
+        $donation->save();
 
         // Clear cached dashboard data
         Cache::forget('donor_dashboard_' . Auth::id());
@@ -160,5 +165,4 @@ class DonationController extends Controller
         return redirect()->route('donor.donations.index')
             ->with('success', 'Donation deleted successfully');
     }
-
 }
