@@ -537,63 +537,72 @@
 
     {{-- Request Modal Script --}}
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const reservationModal = new bootstrap.Modal(document.getElementById('reservationModal'));
-            const reservationForm = document.getElementById('reservationForm');
-            const reserveButtons = document.querySelectorAll('.btn-request');
-            const pickupDateInput = document.querySelector('input[name="pickup_date"]');
+    document.addEventListener('DOMContentLoaded', function() {
+        const reservationModal = new bootstrap.Modal(document.getElementById('reservationModal'));
+        const reservationForm = document.getElementById('reservationForm');
+        const reserveButtons = document.querySelectorAll('.btn-request');
+        const pickupDateInput = document.querySelector('input[name="pickup_date"]');
 
-            // Handle request button clicks
-            reserveButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const donationId = this.dataset.donationId;
-                    const bestBeforeDate = this.dataset.bestBefore;
-                    const today = new Date().toISOString().split('T')[0];
+        // Handle request button clicks
+        reserveButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const donationId = this.dataset.donationId;
+                const bestBeforeDate = this.dataset.bestBefore;
+                const today = new Date().toISOString().split('T')[0];
 
-                    // Set date constraints
-                    pickupDateInput.min = today;
-                    pickupDateInput.max = bestBeforeDate;
+                // Set date constraints - ALLOW pickup on best before date
+                pickupDateInput.min = today;
+                pickupDateInput.max = bestBeforeDate; // This should allow same day as best before
 
-                    // Update form action
-                    reservationForm.action = `/recipient/donations/${donationId}/accept`;
-                    
-                    // Show modal
-                    reservationModal.show();
-                });
+                // Update form action
+                reservationForm.action = `/recipient/donations/${donationId}/accept`;
+                
+                // Show modal
+                reservationModal.show();
             });
+        });
 
-            // Form validation
-            reservationForm.addEventListener('submit', function(e) {
-                const pickupDate = new Date(pickupDateInput.value);
-                const today = new Date();
-                const bestBefore = new Date(pickupDateInput.max);
+        // FIXED: Form validation - allow pickup on best before date
+        reservationForm.addEventListener('submit', function(e) {
+            const pickupDate = new Date(pickupDateInput.value);
+            const today = new Date();
+            const bestBefore = new Date(pickupDateInput.max);
+            
+            // Normalize dates to avoid time zone issues
+            pickupDate.setHours(0, 0, 0, 0);
+            today.setHours(0, 0, 0, 0);
+            bestBefore.setHours(0, 0, 0, 0);
 
-                // Validate pickup date
-                if (pickupDate < today || pickupDate > bestBefore) {
-                    e.preventDefault();
-                    
-                    // Show error alert
-                    const alertHtml = `
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                            <i class="fas fa-exclamation-triangle me-2"></i>
-                            Please select a valid pickup date before the food expires.
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    `;
-                    
-                    document.querySelector('.modal-body').insertAdjacentHTML('afterbegin', alertHtml);
+            // FIXED: Use <= instead of < to allow pickup ON the best before date
+            if (pickupDate < today || pickupDate > bestBefore) {
+                e.preventDefault();
+                
+                // Show error alert
+                const alertHtml = `
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Please select a pickup date between today and the food's expiry date (inclusive).
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                `;
+                
+                // Remove any existing alerts first
+                document.querySelectorAll('.modal-body .alert').forEach(alert => alert.remove());
+                document.querySelector('.modal-body').insertAdjacentHTML('afterbegin', alertHtml);
+                
+                return false;
+            }
+        });
+
+        // Auto-dismiss alerts after 5 seconds
+        setTimeout(() => {
+            document.querySelectorAll('.alert').forEach(alert => {
+                if (alert.classList.contains('show')) {
+                    bootstrap.Alert.getOrCreateInstance(alert).close();
                 }
             });
-
-            // Auto-dismiss alerts after 5 seconds
-            setTimeout(() => {
-                document.querySelectorAll('.alert').forEach(alert => {
-                    if (alert.classList.contains('show')) {
-                        bootstrap.Alert.getOrCreateInstance(alert).close();
-                    }
-                });
-            }, 5000);
-        });
+        }, 5000);
+    });
     </script>
 </body>
 </html>

@@ -22,32 +22,28 @@ class ReservationController extends Controller
                 ->with('error', 'This donation is no longer available.');
         }
 
-        // Validate reservation details
+        // IMPROVED: More explicit date validation
         $validator = Validator::make($request->all(), [
             'pickup_time' => 'required|date_format:H:i',
             'pickup_date' => [
                 'required', 
-                'date', 
+                'date',
+                'after_or_equal:today', // Must be today or later
                 function ($attribute, $value, $fail) use ($donation) {
-                    // Convert best before and pickup dates to Carbon instances
-                    $bestBefore = Carbon::parse($donation->best_before);
-                    $pickupDate = Carbon::parse($value);
+                    $bestBefore = Carbon::parse($donation->best_before)->startOfDay();
+                    $pickupDate = Carbon::parse($value)->startOfDay();
 
-                    // Ensure pickup date is not after best before date
-                    // Allow reservation on the best before date
+                    // ALLOW pickup on the same day as best before date
                     if ($pickupDate->gt($bestBefore)) {
-                        $fail('Pickup date cannot be after the donation\'s best before date.');
-                    }
-
-                    // Ensure pickup date is today or later
-                    if ($pickupDate->lt(Carbon::today())) {
-                        $fail('Pickup date must be today or later.');
+                        $fail('Pickup date cannot be after the food\'s best before date (' . $bestBefore->format('d M Y') . ').');
                     }
                 }
             ]
         ], [
             'pickup_date.required' => 'Please select a pickup date.',
-            'pickup_date' => 'Invalid pickup date.'
+            'pickup_date.after_or_equal' => 'Pickup date must be today or later.',
+            'pickup_time.required' => 'Please select a pickup time.',
+            'pickup_time.date_format' => 'Please enter a valid time format.'
         ]);
 
         if ($validator->fails()) {
@@ -80,9 +76,8 @@ class ReservationController extends Controller
         $donation->save();
 
         return redirect()->route('recipient.reservations')
-            ->with('success', 'Donation reserved successfully.');
+            ->with('success', 'Donation reserved successfully. You can pick it up until the expiry date.');
     }
-
     /**
      * Cancel a reservation
      */
