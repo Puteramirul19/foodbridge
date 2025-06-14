@@ -78,33 +78,40 @@ class ReservationController extends Controller
         return redirect()->route('recipient.reservations')
             ->with('success', 'Donation reserved successfully. You can pick it up until the expiry date.');
     }
+
     /**
-     * Cancel a reservation
+     * Cancel a reservation (by recipient)
+     * This DELETES the reservation and makes donation available again
      */
     public function cancel(Reservation $reservation)
     {
         // Ensure the user can only cancel their own reservations
         $this->authorize('cancel', $reservation);
 
-        // Update donation status back to available
+        // Get the donation
         $donation = $reservation->donation;
-        $donation->status = $donation->determineStatus(); // Use the method to set correct status
-        $donation->save();
 
-        // Delete the reservation
+        // Delete the reservation completely
         $reservation->delete();
 
+        // Update donation status back to available (or expired if past date)
+        $donation->status = $donation->determineStatus();
+        $donation->save();
+
         return redirect()->route('recipient.reservations')
-            ->with('success', 'Reservation cancelled successfully.');
+            ->with('success', 'Reservation cancelled successfully. The donation is now available for others.');
     }
 
     /**
-     * Confirm pickup of a reservation
+     * Confirm pickup of a reservation (by donor)
+     * This marks both reservation and donation as completed
      */
     public function confirmPickup(Reservation $reservation)
     {
-        // Ensure only the donor or recipient can confirm
-        $this->authorize('confirmPickup', $reservation);
+        // Ensure only the donor can confirm pickup
+        if (Auth::id() !== $reservation->donation->user_id) {
+            abort(403, 'Unauthorized action.');
+        }
 
         // Update reservation status
         $reservation->status = 'completed';
@@ -116,7 +123,34 @@ class ReservationController extends Controller
         $donation->save();
 
         return redirect()->back()
-            ->with('success', 'Pickup confirmed successfully.');
+            ->with('success', 'Pickup confirmed successfully. Thank you for completing this donation!');
+    }
+
+    /**
+     * Mark pickup as not collected (by donor)
+     * This DELETES the reservation and makes donation available again
+     */
+    public function markNotCollected(Reservation $reservation)
+    {
+        // Ensure only the donor can mark as not collected
+        if (Auth::id() !== $reservation->donation->user_id) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        // Get the donation
+        $donation = $reservation->donation;
+
+        // Delete the reservation completely (same as recipient cancelling)
+        $reservation->delete();
+
+        // Update donation status back to available (or expired if past date)
+        $donation->status = $donation->determineStatus();
+        $donation->save();
+
+        $statusText = $donation->status === 'expired' ? 'expired' : 'available again';
+
+        return redirect()->back()
+            ->with('success', "Marked as not collected. The donation is now {$statusText}.");
     }
 
     /**

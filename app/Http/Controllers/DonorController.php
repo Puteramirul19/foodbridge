@@ -20,18 +20,26 @@ class DonorController extends Controller
         Cache::forget('donor_dashboard_' . $user->id);
 
         // Get the donor's donations with eager loading to reduce queries
-        $donations = $user->donations()->with('donor')->get();
+        $donations = $user->donations()->with(['donor', 'reservations.recipient'])->get();
 
         // Calculate donation statistics
         $stats = [
             'total' => $donations->count(),
             'completed' => $donations->where('status', 'completed')->count(),
             'reserved' => $donations->where('status', 'reserved')->count(),
+            'available' => $donations->where('status', 'available')->count(),
+            'expired' => $donations->where('status', 'expired')->count(),
             'totalServings' => $donations->sum('estimated_servings')
         ];
 
         // Get recent donations (last 5)
         $recentDonations = $donations->sortByDesc('created_at')->take(5);
+
+        // Get pending pickups (donations that are reserved and need completion)
+        $pendingPickups = $donations->filter(function ($donation) {
+            return $donation->status === 'reserved' && 
+                   $donation->reservations->where('status', 'pending')->count() > 0;
+        });
 
         // Calculate donations by food category
         $donationsByCategory = $donations->groupBy('food_category')
@@ -62,10 +70,31 @@ class DonorController extends Controller
         return view('donor.dashboard', [
             'donations' => $donations,
             'recentDonations' => $recentDonations,
+            'pendingPickups' => $pendingPickups,
             'stats' => $stats,
             'donationsByCategory' => $donationsByCategory,
             'monthlyDonations' => $finalMonthlyDonations
         ]);
+    }
+
+    /**
+     * Show pending pickups that need donor confirmation
+     */
+    public function pendingPickups()
+    {
+        $user = Auth::user();
+        
+        // Get donations that are reserved and have pending reservations
+        $pendingPickups = $user->donations()
+            ->with(['reservations.recipient'])
+            ->where('status', 'reserved')
+            ->whereHas('reservations', function ($query) {
+                $query->where('status', 'pending');
+            })
+            ->latest()
+            ->get();
+
+        return view('donor.pending-pickups', compact('pendingPickups'));
     }
 
     /**

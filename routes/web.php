@@ -47,6 +47,12 @@ Route::prefix('auth')->group(function () {
 Route::middleware(['auth', 'active', 'role:donor'])->prefix('donor')->name('donor.')->group(function () {
     // Dashboard
     Route::get('/dashboard', [DonorController::class, 'dashboard'])->name('dashboard');
+    
+    // Pending Pickups Management
+    Route::get('/pending-pickups', [DonorController::class, 'pendingPickups'])->name('pending-pickups');
+    Route::post('/confirm-pickup/{reservation}', [ReservationController::class, 'confirmPickup'])->name('confirm-pickup');
+    Route::post('/mark-not-collected/{reservation}', [ReservationController::class, 'markNotCollected'])->name('mark-not-collected');
+    
     // Donation Insights
     Route::get('/insights', [DonorController::class, 'insights'])->name('insights');
 
@@ -86,11 +92,11 @@ Route::middleware(['auth', 'active', 'role:admin'])->prefix('admin')->name('admi
     // User Management
     Route::get('/users', [AdminController::class, 'manageUsers'])->name('users.index');
     Route::put('/users/{user}/toggle-status', [AdminController::class, 'toggleUserStatus'])->name('users.toggle-status');
+    
+    // Report Generation Routes
+    Route::get('/generate-reports', [AdminController::class, 'showReportForm'])->name('show-reports');
+    Route::post('/generate-reports', [AdminController::class, 'generateReports'])->name('generate-reports');
 });
-
-// Report Generation Routes
-Route::get('/admin/generate-reports', [AdminController::class, 'showReportForm'])->name('admin.show-reports');
-Route::post('/admin/generate-reports', [AdminController::class, 'generateReports'])->name('admin.generate-reports');
 
 // Profile Routes 
 Route::middleware(['auth', 'active'])->group(function () {

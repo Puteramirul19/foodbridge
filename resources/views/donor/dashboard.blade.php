@@ -59,6 +59,24 @@
             font-size: 0.8rem;
             color: #dc3545;
         }
+        .pending-pickup-alert {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .pickup-item {
+            background: rgba(255,255,255,0.8);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid #dc3545;
+        }
+        .pickup-item.urgent {
+            border-left-color: #dc3545;
+            background: linear-gradient(135deg, #fff5f5 0%, rgba(255,255,255,0.9) 100%);
+        }
     </style>
 </head>
 <body>
@@ -73,6 +91,14 @@
                 <a href="{{ route('donor.donations.create') }}" class="btn btn-primary me-2">
                     <i class="fas fa-plus me-2"></i>New Donation
                 </a>
+                @if($pendingPickups->count() > 0)
+                    <a href="{{ route('donor.pending-pickups') }}" class="btn btn-warning me-2 position-relative">
+                        <i class="fas fa-clock me-2"></i>Pending Pickups
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            {{ $pendingPickups->count() }}
+                        </span>
+                    </a>
+                @endif
                 <a href="{{ route('donor.insights') }}" class="btn btn-outline-secondary me-2">
                     <i class="fas fa-chart-line me-2"></i>Insights
                 </a>
@@ -90,6 +116,14 @@
     </nav>
 
     <div class="container dashboard-container">
+        {{-- Success/Error Messages --}}
+        @if(session('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        @endif
+
         {{-- Welcome Section --}}
         <div class="welcome-header">
             <div class="d-flex justify-content-between align-items-center w-100">
@@ -100,6 +134,56 @@
                 <i class="fas fa-hands-helping fa-3x"></i>
             </div>
         </div>
+
+        {{-- Pending Pickups Alert --}}
+        @if($pendingPickups->count() > 0)
+            <div class="pending-pickup-alert">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="flex-grow-1">
+                        <h5><i class="fas fa-exclamation-triangle text-warning me-2"></i>Pending Pickups Require Attention</h5>
+                        <p class="mb-3">You have {{ $pendingPickups->count() }} donation(s) awaiting pickup confirmation.</p>
+                        
+                        @foreach($pendingPickups->take(3) as $donation)
+                            @php
+                                $reservation = $donation->reservations->where('status', 'pending')->first();
+                                $isUrgent = $donation->isExpiringSoon() || $reservation->pickup_date->isToday();
+                            @endphp
+                            <div class="pickup-item {{ $isUrgent ? 'urgent' : '' }}">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>{{ Str::limit($donation->food_description, 50) }}</strong>
+                                        <small class="d-block text-muted">
+                                            Pickup: {{ $reservation->pickup_date->format('d M Y') }} at {{ $reservation->pickup_time }}
+                                            by {{ $reservation->recipient->name }}
+                                        </small>
+                                    </div>
+                                    @if($isUrgent)
+                                        <span class="badge bg-danger">
+                                            @if($donation->isExpired())
+                                                Expired
+                                            @elseif($reservation->pickup_date->isToday())
+                                                Due Today
+                                            @else
+                                                Expires Soon
+                                            @endif
+                                        </span>
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                        
+                        @if($pendingPickups->count() > 3)
+                            <small class="text-muted">...and {{ $pendingPickups->count() - 3 }} more</small>
+                        @endif
+                    </div>
+                    <div class="ms-3">
+                        <a href="{{ route('donor.pending-pickups') }}" class="btn btn-warning">
+                            <i class="fas fa-eye me-2"></i>Review All
+                        </a>
+                    </div>
+                </div>
+            </div>
+        @endif
 
         {{-- Donation Statistics --}}
         <div class="row">
@@ -179,7 +263,8 @@
                                     <td>
                                         <span class="badge bg-{{ 
                                             $donation->status == 'available' ? 'success' : 
-                                            ($donation->status == 'reserved' ? 'warning' : 'secondary')
+                                            ($donation->status == 'reserved' ? 'warning' : 
+                                            ($donation->status == 'completed' ? 'info' : 'danger'))
                                         }}">
                                             {{ ucfirst($donation->status) }}
                                         </span>
@@ -187,7 +272,7 @@
                                     <td>
                                         <div class="btn-group" role="group">
                                             {{-- Edit Button --}}
-                                            @if(!$donation->isExpired() && $donation->status === 'available')
+                                            @if($donation->canBeEdited())
                                                 <a href="{{ route('donor.donations.edit', $donation) }}" 
                                                    class="btn btn-sm btn-outline-primary">
                                                     <i class="fas fa-edit"></i>

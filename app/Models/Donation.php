@@ -54,6 +54,14 @@ class Donation extends Model
     }
 
     /**
+     * Get active (pending) reservation
+     */
+    public function activeReservation()
+    {
+        return $this->hasOne(Reservation::class)->where('status', 'pending');
+    }
+
+    /**
      * Scope for available donations
      */
     public function scopeAvailable($query)
@@ -112,6 +120,16 @@ class Donation extends Model
     }
 
     /**
+     * Check if donation is expiring soon (within 1 day)
+     */
+    public function isExpiringSoon()
+    {
+        $bestBefore = Carbon::parse($this->best_before);
+        $today = Carbon::today();
+        return $bestBefore->gte($today) && $bestBefore->lte($today->copy()->addDay());
+    }
+
+    /**
      * Get formatted expiration status
      * Ensures status is only marked as expired after the best before date
      */
@@ -136,20 +154,44 @@ class Donation extends Model
     }
 
     /**
-     * Manually update expired donations
+     * Manually update expired donations and clean up overdue reservations
      */
     public static function updateExpiredDonations()
     {
         try {
-            // Use a raw update to minimize memory usage
-            // Note: Now only marking as expired when the date is strictly less than today
-            $updatedCount = DB::table('donations')
+            $updatedCount = 0;
+
+            // 1. Mark available donations as expired if past best before date
+            $expiredAvailable = DB::table('donations')
                 ->where('status', 'available')
-                ->where('best_before', '<', now()->subDay())
+                ->where('best_before', '<', Carbon::today())
                 ->update(['status' => 'expired']);
+            
+            $updatedCount += $expiredAvailable;
+
+            // 2. Handle reserved donations that are past best before date
+            $expiredReserved = DB::table('donations')
+                ->where('status', 'reserved')
+                ->where('best_before', '<', Carbon::today())
+                ->get();
+
+            foreach ($expiredReserved as $donation) {
+                // Mark the donation as expired
+                DB::table('donations')
+                    ->where('id', $donation->id)
+                    ->update(['status' => 'expired']);
+
+                // DELETE any pending reservations (don't cancel, just remove them)
+                DB::table('reservations')
+                    ->where('donation_id', $donation->id)
+                    ->where('status', 'pending')
+                    ->delete();
+
+                $updatedCount++;
+            }
 
             if ($updatedCount > 0) {
-                Log::info("Updated {$updatedCount} donations to expired status.");
+                Log::info("Updated {$updatedCount} donations to expired status and cleaned up overdue reservations.");
             }
 
             return $updatedCount;
@@ -174,19 +216,61 @@ class Donation extends Model
     }
 
     /**
-     * Determine the status of the donation
+     * Determine the status of the donation based on current conditions
+     * SIMPLIFIED LOGIC: Only 4 statuses - available, reserved, completed, expired
      * 
      * @return string
      */
     public function determineStatus()
     {
-        // If best before date is today or in the future, it's available
-        if (Carbon::parse($this->best_before)->isSameDay(Carbon::today()) || 
-            Carbon::parse($this->best_before)->isFuture()) {
-            return 'available';
+        // If donation is past best before date, it's expired
+        if (Carbon::parse($this->best_before)->lt(Carbon::today())) {
+            return 'expired';
         }
 
-        // If best before date is in the past, it's expired
-        return 'expired';
+        // If there's a completed reservation, it's completed
+        if ($this->reservations()->where('status', 'completed')->exists()) {
+            return 'completed';
+        }
+
+        // If there's an active (pending) reservation, it's reserved
+        if ($this->reservations()->where('status', 'pending')->exists()) {
+            return 'reserved';
+        }
+
+        // Otherwise, it's available
+        return 'available';
+    }
+
+    /**
+     * Check if the donation can be edited
+     */
+    public function canBeEdited()
+    {
+        return !$this->isExpired() && 
+               $this->status === 'available';
+    }
+
+    /**
+     * Check if the donation can be deleted
+     */
+    public function canBeDeleted()
+    {
+        return $this->status === 'available' && !$this->isExpired();
+    }
+
+    /**
+     * Get days until expiration
+     */
+    public function getDaysUntilExpirationAttribute()
+    {
+        $bestBefore = Carbon::parse($this->best_before);
+        $today = Carbon::today();
+        
+        if ($bestBefore->lt($today)) {
+            return 0; // Already expired
+        }
+        
+        return $today->diffInDays($bestBefore);
     }
 }
