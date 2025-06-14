@@ -9,9 +9,24 @@ use App\Http\Controllers\RecipientController;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Donation;
 
-// Public Routes
+// Public Routes - Updated with real data
 Route::get('/', function () {
-    return view('welcome');
+    // Get real statistics from database
+    $totalServings = \App\Models\Donation::sum('estimated_servings') ?: 0;
+    $activeDonors = \App\Models\User::where('role', 'donor')
+                                    ->where('is_active', true)
+                                    ->whereHas('donations')
+                                    ->count();
+    $activeRecipients = \App\Models\User::where('role', 'recipient')
+                                        ->where('is_active', true)
+                                        ->whereHas('reservations')
+                                        ->count();
+    
+    return view('welcome', compact(
+        'totalServings', 
+        'activeDonors', 
+        'activeRecipients'
+    ));
 })->name('home');
 
 // Authentication Routes
