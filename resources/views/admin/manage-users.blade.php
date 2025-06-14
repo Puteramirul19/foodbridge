@@ -231,14 +231,6 @@
                                                 <i class="fas fa-eye"></i>
                                             </button>
                                             
-                                            {{-- Edit Button --}}
-                                            <button type="button" class="btn btn-outline-primary btn-action" 
-                                                    data-bs-toggle="modal" 
-                                                    data-bs-target="#editUserModal"
-                                                    onclick="editUser({{ $user->id }}, '{{ $user->name }}', '{{ $user->email }}', '{{ $user->phone_number }}', '{{ $user->role }}', {{ $user->is_active ? 'true' : 'false' }})">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            
                                             {{-- Toggle Status Button --}}
                                             <form action="{{ route('admin.users.toggle-status', $user) }}" method="POST" class="d-inline">
                                                 @csrf
@@ -312,66 +304,6 @@
         </div>
     </div>
 
-    {{-- Edit User Modal --}}
-    <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editUserModalLabel">
-                        <i class="fas fa-user-edit me-2"></i>Edit User
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form id="editUserForm" method="POST">
-                    @csrf
-                    @method('PUT')
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="editName" class="form-label">Full Name</label>
-                                    <input type="text" class="form-control" id="editName" name="name" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="editEmail" class="form-label">Email Address</label>
-                                    <input type="email" class="form-control" id="editEmail" name="email" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="editPhone" class="form-label">Phone Number</label>
-                                    <input type="tel" class="form-control" id="editPhone" name="phone_number">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="editRole" class="form-label">Role</label>
-                                    <select class="form-select" id="editRole" name="role" required>
-                                        <option value="donor">Donor</option>
-                                        <option value="recipient">Recipient</option>
-                                    </select>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="editPassword" class="form-label">New Password (Leave blank to keep current)</label>
-                                    <input type="password" class="form-control" id="editPassword" name="password" placeholder="Enter new password">
-                                    <div class="form-text">Only fill this if you want to change the user's password</div>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="editPasswordConfirmation" class="form-label">Confirm New Password</label>
-                                    <input type="password" class="form-control" id="editPasswordConfirmation" name="password_confirmation" placeholder="Confirm new password">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save me-2"></i>Save Changes
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
     {{-- Bootstrap JS --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -429,31 +361,6 @@
             document.getElementById('viewUserStatus').innerHTML = `<span class="badge bg-${isActive ? 'success' : 'danger'}">${isActive ? 'Active' : 'Inactive'}</span>`;
             document.getElementById('viewUserRegistered').textContent = registered;
         }
-
-        // Edit User Modal
-        function editUser(id, name, email, phone, role, isActive) {
-            document.getElementById('editUserForm').action = `/admin/users/${id}/update`;
-            document.getElementById('editName').value = name;
-            document.getElementById('editEmail').value = email;
-            document.getElementById('editPhone').value = phone || '';
-            document.getElementById('editRole').value = role;
-            
-            // Clear password fields
-            document.getElementById('editPassword').value = '';
-            document.getElementById('editPasswordConfirmation').value = '';
-        }
-
-        // Password confirmation validation
-        document.getElementById('editUserForm').addEventListener('submit', function(e) {
-            const password = document.getElementById('editPassword').value;
-            const confirmation = document.getElementById('editPasswordConfirmation').value;
-            
-            if (password && password !== confirmation) {
-                e.preventDefault();
-                alert('Password and confirmation do not match!');
-                return false;
-            }
-        });
     </script>
 </body>
 </html>
