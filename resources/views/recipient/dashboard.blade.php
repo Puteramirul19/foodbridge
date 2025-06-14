@@ -335,16 +335,13 @@
         {{-- Welcome Section --}}
         <div class="dashboard-header">
             <div class="content d-flex justify-content-between align-items-center">
-                <div>
-                    <h1 class="mb-3">
-                        <i class="fas fa-heart me-3"></i>Welcome to Your Dashboard
-                    </h1>
-                    <p class="mb-0 fs-5">Track your donations and discover new opportunities to get nutritious food</p>
-                </div>
-                <div class="text-end">
-                    <div class="badge bg-light text-dark p-3" style="font-size: 1rem;">
-                        <i class="fas fa-calendar-alt me-2"></i>
-                        {{ now()->format('D, M d Y') }}
+                <div class="d-flex justify-content-between align-items-center w-100">
+                    <div>
+                        <h1 class="mb-3">Welcome, {{ Auth::user()->name }}!</h1>
+                        <p class="mb-0 fs-5">Track your donations and discover new opportunities to get nutritious food</p>
+                    </div>
+                    <div class="text-end">
+                        <i class="fas fa-heart fa-3x"></i>
                     </div>
                 </div>
             </div>

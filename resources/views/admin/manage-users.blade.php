@@ -96,6 +96,8 @@
         .btn-close-white {
             filter: brightness(0) invert(1);
         }
+        
+        /* Simplified styles - removed confirmation modal styles */
     </style>
 </head>
 <body>
@@ -231,11 +233,13 @@
                                                 <i class="fas fa-eye"></i>
                                             </button>
                                             
-                                            {{-- Toggle Status Button --}}
+                                            {{-- Toggle Status Button with Simple Confirmation --}}
                                             <form action="{{ route('admin.users.toggle-status', $user) }}" method="POST" class="d-inline">
                                                 @csrf
                                                 @method('PUT')
-                                                <button type="submit" class="btn btn-action {{ $user->is_active ? 'btn-outline-danger' : 'btn-outline-success' }}">
+                                                <button type="submit" 
+                                                        class="btn btn-action {{ $user->is_active ? 'btn-outline-danger' : 'btn-outline-success' }}"
+                                                        onclick="return confirm('{{ $user->is_active ? 'Are you sure you want to DEACTIVATE' : 'Are you sure you want to ACTIVATE' }} {{ addslashes($user->name) }}\'s account?{{ $user->is_active ? ' This will immediately log them out and prevent access to the platform.' : '' }}')">
                                                     <i class="fas {{ $user->is_active ? 'fa-ban' : 'fa-check' }}"></i>
                                                 </button>
                                             </form>
@@ -303,6 +307,8 @@
             </div>
         </div>
     </div>
+
+
 
     {{-- Bootstrap JS --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
