@@ -6,8 +6,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Barryvdh\DomPDF\Facade\Pdf;
+
 class AdminController extends Controller
 {
 /**
@@ -51,6 +53,81 @@ public function manageUsers()
 {
     $users = User::all();
     return view('admin.manage-users', compact('users'));
+}
+
+/**
+ * Update user information
+ */
+public function updateUser(Request $request, User $user)
+{
+    // Validation rules
+    $validator = Validator::make($request->all(), [
+        'name' => 'required|string|max:255',
+        'email' => [
+            'required',
+            'email',
+            'max:255',
+            Rule::unique('users')->ignore($user->id)
+        ],
+        'phone_number' => 'nullable|string|max:20',
+        'role' => 'required|in:donor,recipient', // Removed admin option
+        'password' => 'nullable|string|min:8|confirmed'
+    ]);
+
+    if ($validator->fails()) {
+        return redirect()->back()
+            ->withErrors($validator)
+            ->with('error', 'Please fix the validation errors.');
+    }
+
+    try {
+        // Prevent editing admin users (additional security check)
+        if ($user->role === 'admin') {
+            return redirect()->back()
+                ->with('error', 'Admin users cannot be edited through this interface.');
+        }
+
+        // Update user information (excluding is_active - that's handled by toggle button)
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->phone_number = $request->phone_number;
+        $user->role = $request->role;
+
+        // Update password if provided
+        if ($request->filled('password')) {
+            $user->password = Hash::make($request->password);
+        }
+
+        $user->save();
+
+        // Log the user update
+        Log::info('User information updated', [
+            'user_id' => $user->id,
+            'updated_by' => Auth::id(),
+            'updated_fields' => [
+                'name' => $request->name,
+                'email' => $request->email,
+                'phone_number' => $request->phone_number,
+                'role' => $request->role,
+                'password_changed' => $request->filled('password')
+            ],
+            'timestamp' => now()
+        ]);
+
+        return redirect()->route('admin.users.index')
+            ->with('success', "User '{$user->name}' has been updated successfully.");
+
+    } catch (\Exception $e) {
+        Log::error('User update failed', [
+            'user_id' => $user->id,
+            'error' => $e->getMessage(),
+            'admin_id' => Auth::id(),
+            'timestamp' => now()
+        ]);
+
+        return redirect()->back()
+            ->with('error', 'Failed to update user information. Please try again.');
+    }
 }
 
 /**
@@ -230,12 +307,13 @@ private function generateCSVReport($data, $type)
     
     switch($type) {
         case 'users':
-            $csvRows[] = ['ID', 'Name', 'Email', 'Role', 'Status', 'Registration Date'];
+            $csvRows[] = ['ID', 'Name', 'Email', 'Phone', 'Role', 'Status', 'Registration Date'];
             foreach ($data as $user) {
                 $csvRows[] = [
                     $user->id, 
                     $user->name, 
-                    $user->email, 
+                    $user->email,
+                    $user->phone_number ?? 'Not provided',
                     $user->role,
                     $user->is_active ? 'Active' : 'Inactive',
                     $user->created_at->format('Y-m-d H:i:s')
@@ -258,12 +336,13 @@ private function generateCSVReport($data, $type)
             break;
         
         case 'donors':
-            $csvRows[] = ['ID', 'Name', 'Email', 'Status', 'Total Donations', 'Total Servings'];
+            $csvRows[] = ['ID', 'Name', 'Email', 'Phone', 'Status', 'Total Donations', 'Total Servings'];
             foreach ($data as $donor) {
                 $csvRows[] = [
                     $donor->id,
                     $donor->name,
                     $donor->email,
+                    $donor->phone_number ?? 'Not provided',
                     $donor->is_active ? 'Active' : 'Inactive',
                     $donor->donations->count(),
                     $donor->donations->sum('estimated_servings')
@@ -272,12 +351,13 @@ private function generateCSVReport($data, $type)
             break;
         
         case 'recipients':
-            $csvRows[] = ['ID', 'Name', 'Email', 'Status', 'Total Reservations', 'Total Servings Received'];
+            $csvRows[] = ['ID', 'Name', 'Email', 'Phone', 'Status', 'Total Reservations', 'Total Servings Received'];
             foreach ($data as $recipient) {
                 $csvRows[] = [
                     $recipient->id,
                     $recipient->name,
                     $recipient->email,
+                    $recipient->phone_number ?? 'Not provided',
                     $recipient->is_active ? 'Active' : 'Inactive',
                     $recipient->reservations->count(),
                     $recipient->reservations->sum('donation.estimated_servings')

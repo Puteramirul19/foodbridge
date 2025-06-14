@@ -192,22 +192,20 @@
 
     {{-- Charts Script --}}
     <script>
-        // User Distribution Chart
+        // User Distribution Chart - UPDATED to only show Donors and Recipients
         const userCtx = document.getElementById('userDistributionChart').getContext('2d');
         new Chart(userCtx, {
             type: 'pie',
             data: {
-                labels: ['Donors', 'Recipients', 'Admins'],
+                labels: ['Donors', 'Recipients'],
                 datasets: [{
                     data: [
                         {{ $totalDonors }}, 
-                        {{ $totalRecipients }}, 
-                        1 // Assuming a single admin
+                        {{ $totalRecipients }}
                     ],
                     backgroundColor: [
                         '#FF6384', 
-                        '#36A2EB', 
-                        '#FFCE56'
+                        '#36A2EB'
                     ]
                 }]
             },

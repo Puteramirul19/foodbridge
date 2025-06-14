@@ -86,6 +86,7 @@ Route::middleware(['auth', 'active', 'role:admin'])->prefix('admin')->name('admi
     // User Management
     Route::get('/users', [AdminController::class, 'manageUsers'])->name('users.index');
     Route::put('/users/{user}/toggle-status', [AdminController::class, 'toggleUserStatus'])->name('users.toggle-status');
+    Route::put('/users/{user}/update', [AdminController::class, 'updateUser'])->name('users.update');
 });
 
 // Report Generation Routes
