@@ -91,3 +91,10 @@ Route::middleware(['auth', 'active', 'role:admin'])->prefix('admin')->name('admi
 // Report Generation Routes
 Route::get('/admin/generate-reports', [AdminController::class, 'showReportForm'])->name('admin.show-reports');
 Route::post('/admin/generate-reports', [AdminController::class, 'generateReports'])->name('admin.generate-reports');
+
+// Profile Routes 
+Route::middleware(['auth', 'active'])->group(function () {
+    Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'show'])->name('profile.show');
+    Route::get('/profile/edit', [App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
+});

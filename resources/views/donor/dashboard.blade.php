@@ -76,6 +76,9 @@
                 <a href="{{ route('donor.insights') }}" class="btn btn-outline-secondary me-2">
                     <i class="fas fa-chart-line me-2"></i>Insights
                 </a>
+                <a href="{{ route('profile.show') }}" class="btn btn-outline-info me-2">
+                    <i class="fas fa-user me-2"></i>Profile
+                </a>
                 <form method="POST" action="{{ route('logout') }}" class="d-inline">
                     @csrf
                     <button type="submit" class="btn btn-outline-danger">

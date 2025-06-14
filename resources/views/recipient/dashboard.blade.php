@@ -318,6 +318,9 @@
                 <a href="{{ route('recipient.donations.browse') }}" class="btn btn-outline-primary me-2">
                     <i class="fas fa-utensils me-2"></i>Browse Donations
                 </a>
+                <a href="{{ route('profile.show') }}" class="btn btn-outline-info me-2">
+                    <i class="fas fa-user me-2"></i>Profile
+                </a>
                 <form method="POST" action="{{ route('logout') }}" class="d-inline">
                     @csrf
                     <button type="submit" class="btn btn-outline-danger">
