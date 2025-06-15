@@ -316,7 +316,7 @@
                 <div class="d-flex justify-content-between align-items-center w-100">
                     <div>
                         <h1 class="mb-3">Welcome, {{ Auth::user()->name }}!</h1>
-                        <p class="mb-0 fs-5">Track your donations and discover new opportunities to get nutritious food</p>
+                        <p class="mb-0 fs-5">Track your food requests and discover new opportunities to get nutritious food</p>
                     </div>
                     <div class="text-end">
                         <i class="fas fa-heart fa-3x"></i>
@@ -332,7 +332,7 @@
                     <i class="fas fa-shopping-basket"></i>
                 </div>
                 <h3>{{ $stats['totalReservations'] }}</h3>
-                <p>Total Donations</p>
+                <p>Total Food Requests</p>
             </div>
             <div class="stat-card">
                 <div class="stat-icon">
@@ -346,7 +346,7 @@
                     <i class="fas fa-check-circle"></i>
                 </div>
                 <h3>{{ $stats['completedReservations'] }}</h3>
-                <p>Collected Donations</p>
+                <p>Collected Food</p>
             </div>
         </div>
 
@@ -356,15 +356,15 @@
                 <i class="fas fa-search me-2"></i>Browse Donations
             </a>
             <a href="{{ route('recipient.reservations') }}" class="btn btn-action btn-action-secondary">
-                <i class="fas fa-list-alt me-2"></i>My Reservations
+                <i class="fas fa-list-alt me-2"></i>My Food Requests
             </a>
         </div>
 
-        {{-- Recent Reservations --}}
+        {{-- Recent Food Requests --}}
         <div class="section-card">
             <div class="section-header">
                 <h3 class="section-title">
-                    <i class="fas fa-history me-2"></i>Recent Reservations
+                    <i class="fas fa-history me-2"></i>Recent Food Requests
                 </h3>
             </div>
 
@@ -372,8 +372,8 @@
                 @if($reservations->isEmpty())
                     <div class="empty-state">
                         <i class="fas fa-box-open fa-5x empty-icon"></i>
-                        <h3 class="mt-3 mb-2">No Donations Yet</h3>
-                        <p class="text-muted fs-5 mb-4">Start by browsing available donations in your area and make your first reservation.</p>
+                        <h3 class="mt-3 mb-2">No Food Requests Yet</h3>
+                        <p class="text-muted fs-5 mb-4">Start by browsing available donations in your area and make your first food request.</p>
                         <a href="{{ route('recipient.donations.browse') }}" class="btn btn-action">
                             <i class="fas fa-search me-2"></i>Browse Donations
                         </a>
@@ -446,7 +446,7 @@
             <div class="col-lg-6 mb-4">
                 <div class="chart-container">
                     <h3 class="chart-title">
-                        <i class="fas fa-chart-pie me-2"></i>Reservation Status
+                        <i class="fas fa-chart-pie me-2"></i>Request Status
                     </h3>
                     <canvas id="reservationStatusChart"></canvas>
                 </div>
@@ -481,7 +481,7 @@
             }
         };
 
-        // Reservation Status Chart - Only show Pending and Completed
+        // Request Status Chart - Only show Pending and Completed
         const statusCtx = document.getElementById('reservationStatusChart').getContext('2d');
         new Chart(statusCtx, {
             type: 'doughnut',
@@ -528,7 +528,7 @@
             }
         });
 
-        // Monthly Reservations Chart
+        // Monthly Food Requests Chart
         const monthlyCtx = document.getElementById('monthlyReservationsChart').getContext('2d');
         const gradient = monthlyCtx.createLinearGradient(0, 0, 0, 400);
         gradient.addColorStop(0, 'rgba(102, 126, 234, 0.8)');
@@ -543,7 +543,7 @@
                     @endforeach
                 ],
                 datasets: [{
-                    label: 'Reservations',
+                    label: 'Food Requests',
                     data: [
                         @foreach($reservationTrends as $count)
                             {{ $count }},
