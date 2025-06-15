@@ -70,7 +70,7 @@ class RecipientController extends Controller
     {
         // Base query for available donations that are not expired
         $query = Donation::where('status', 'available')
-                         ->where('best_before', '>=', Carbon::today());
+                        ->where('best_before', '>=', Carbon::today());
 
         // Filter by food category if provided
         if ($request->has('food_category') && $request->food_category != '') {
@@ -88,14 +88,14 @@ class RecipientController extends Controller
         // Paginate results
         $donations = $query->paginate(10);
 
-        // Food categories for filtering
+        // UPDATED: Food categories for filtering with new emoji categories
         $foodCategories = [
-            'produce' => 'Fresh Produce',
-            'bakery' => 'Bakery Items',
-            'prepared_meals' => 'Prepared Meals',
-            'packaged_goods' => 'Packaged Goods',
-            'dairy' => 'Dairy Products',
-            'other' => 'Other'
+            'fruits_vegetables' => '🥕 Fruits & Vegetables',
+            'bread_rice' => '🍞 Bread, Rice & Grains',
+            'cooked_food' => '🍲 Cooked Food & Meals',
+            'canned_bottled' => '🥫 Canned & Bottled Items',
+            'milk_eggs' => '🥛 Milk, Eggs & Dairy',
+            'other' => '📦 Other Food Items'
         ];
 
         return view('recipient.browse-donations', compact('donations', 'foodCategories'));

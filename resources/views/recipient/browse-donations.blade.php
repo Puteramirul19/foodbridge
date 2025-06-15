@@ -368,15 +368,6 @@
                         <form action="{{ route('recipient.donations.browse') }}" method="GET">
                             <div class="mb-4">
                                 <label class="form-label fw-bold">
-                                    <i class="fas fa-search me-2"></i>Search
-                                </label>
-                                <input type="text" name="search" class="form-control" 
-                                       placeholder="Search food description..."
-                                       value="{{ request('search') }}">
-                            </div>
-
-                            <div class="mb-4">
-                                <label class="form-label fw-bold">
                                     <i class="fas fa-tags me-2"></i>Food Category
                                 </label>
                                 <select name="food_category" class="form-select">
@@ -391,7 +382,7 @@
                             </div>
 
                             <button type="submit" class="btn btn-filter w-100">
-                                <i class="fas fa-search me-2"></i>Apply Filters
+                                <i class="fas fa-filter me-2"></i>Apply Filter
                             </button>
                         </form>
                     </div>
@@ -404,7 +395,7 @@
                     <div class="empty-state">
                         <i class="fas fa-box-open fa-5x empty-icon"></i>
                         <h3 class="mt-3 mb-2">No Donations Found</h3>
-                        <p class="text-muted fs-5">There are currently no donations matching your search criteria.</p>
+                        <p class="text-muted fs-5">There are currently no donations matching your filter criteria.</p>
                         <p class="text-muted">Try adjusting your filters or check back later for new donations.</p>
                         <a href="{{ route('recipient.donations.browse') }}" class="btn btn-primary mt-3">
                             <i class="fas fa-refresh me-2"></i>Clear Filters

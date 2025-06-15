@@ -23,9 +23,9 @@ class DonationController extends Controller
      */
     public function store(Request $request)
     {
-        // Validate donation input
+        // Validate donation input - UPDATED with new categories
         $validator = Validator::make($request->all(), [
-            'food_category' => 'required|in:produce,bakery,prepared_meals,packaged_goods,dairy,other',
+            'food_category' => 'required|in:fruits_vegetables,bread_rice,cooked_food,canned_bottled,milk_eggs,other',
             'food_description' => 'required|string|max:500',
             'estimated_servings' => 'required|integer|min:1|max:1000',
             'best_before' => 'required|date|after_or_equal:today',
@@ -104,9 +104,9 @@ class DonationController extends Controller
         // Authorize the update action
         $this->authorize('update', $donation);
 
-        // Validate donation input
+        // Validate donation input - UPDATED with new categories
         $validator = Validator::make($request->all(), [
-            'food_category' => 'required|in:produce,bakery,prepared_meals,packaged_goods,dairy,other',
+            'food_category' => 'required|in:fruits_vegetables,bread_rice,cooked_food,canned_bottled,milk_eggs,other',
             'food_description' => 'required|string|max:500',
             'estimated_servings' => 'required|integer|min:1|max:1000',
             'best_before' => 'required|date|after_or_equal:today',
@@ -148,20 +148,18 @@ class DonationController extends Controller
     }
 
     /**
-     * Delete a specific donation
+     * Delete a donation
      */
     public function destroy(Donation $donation)
     {
         // Authorize the delete action
         $this->authorize('delete', $donation);
 
-        // Delete the donation
         $donation->delete();
 
         // Clear cached dashboard data
         Cache::forget('donor_dashboard_' . Auth::id());
 
-        // Redirect with success message
         return redirect()->route('donor.donations.index')
             ->with('success', 'Donation deleted successfully');
     }

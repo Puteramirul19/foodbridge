@@ -250,15 +250,27 @@
             </form>
         </div>
 
-        {{-- Reservations --}}
+        {{-- Food Requests --}}
         @if($reservations->isEmpty())
             <div class="empty-state">
-                <i class="fas fa-box-open fa-5x empty-icon"></i>
-                <h3 class="mt-3 mb-2">No Reservations Yet</h3>
-                <p class="text-muted fs-5">Start by browsing available donations in your area.</p>
-                <a href="{{ route('recipient.donations.browse') }}" class="btn btn-primary">
-                    <i class="fas fa-search me-2"></i>Browse Donations
-                </a>
+                <i class="fas fa-search fa-5x empty-icon"></i>
+                @if(request()->hasAny(['status', 'start_date']))
+                    {{-- When filters are applied but no results --}}
+                    <h3 class="mt-3 mb-2">No Food Requests Found</h3>
+                    <p class="text-muted fs-5 mb-4">There are currently no food requests matching your search criteria.</p>
+                    <p class="text-muted">Try adjusting your filters or check back later for new requests.</p>
+                    <a href="{{ route('recipient.reservations') }}" class="btn btn-primary mt-3">
+                        <i class="fas fa-refresh me-2"></i>Clear Filters
+                    </a>
+                @else
+                    {{-- When no food requests exist at all --}}
+                    <h3 class="mt-3 mb-2">No Food Requests Yet</h3>
+                    <p class="text-muted fs-5 mb-4">Start by browsing available food donations in your area and make your first request.</p>
+                    <p class="text-muted">Help reduce food waste while getting nutritious meals for your family!</p>
+                    <a href="{{ route('recipient.donations.browse') }}" class="btn btn-primary">
+                        <i class="fas fa-search me-2"></i>Browse Food Donations
+                    </a>
+                @endif
             </div>
         @else
             <div class="card">
@@ -342,14 +354,14 @@
     {{-- Bootstrap JS --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    {{-- Reservation Cancellation Confirmation --}}
+    {{-- Food Request Cancellation Confirmation --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Confirm reservation cancellation
+            // Confirm food request cancellation
             const cancelForms = document.querySelectorAll('.cancel-reservation-form');
             cancelForms.forEach(form => {
                 form.addEventListener('submit', function(e) {
-                    const confirmCancel = confirm('Are you sure you want to cancel this reservation?');
+                    const confirmCancel = confirm('Are you sure you want to cancel this food request?');
                     if (!confirmCancel) {
                         e.preventDefault();
                     }

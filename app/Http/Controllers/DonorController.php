@@ -10,7 +10,7 @@ class DonorController extends Controller
 {
     /**
      * Show the donor dashboard with comprehensive donation insights
-     * UPDATED: Charts only show COMPLETED donations statistics
+     * UPDATED: Total servings only count COMPLETED donations
      */
     public function dashboard()
     {
@@ -23,14 +23,15 @@ class DonorController extends Controller
         // Get the donor's donations with eager loading to reduce queries
         $donations = $user->donations()->with(['donor', 'reservations.recipient'])->get();
 
-        // Calculate donation statistics (EXCLUDE EXPIRED from active statistics)
+        // Calculate donation statistics
         $stats = [
             'total' => $donations->count(),
             'completed' => $donations->where('status', 'completed')->count(),
             'reserved' => $donations->where('status', 'reserved')->count(),
             'available' => $donations->where('status', 'available')->count(),
             'expired' => $donations->where('status', 'expired')->count(),
-            'totalServings' => $donations->sum('estimated_servings'),
+            // UPDATED: Only count servings from COMPLETED donations
+            'totalServings' => $donations->where('status', 'completed')->sum('estimated_servings'),
             // Active servings (excluding expired)
             'activeServings' => $donations->whereNotIn('status', ['expired'])->sum('estimated_servings')
         ];

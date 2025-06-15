@@ -239,39 +239,38 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="food_category" class="form-label">
-                                    <i class="fas fa-tags"></i>Food Category
+                                    <i class="fas fa-tags"></i>Food Type
                                 </label>
                                 <select class="form-select @error('food_category') is-invalid @enderror" 
                                         id="food_category" name="food_category" required>
-                                    <option value="">Select Food Category</option>
-                                    <option value="produce">Fresh Produce</option>
-                                    <option value="bakery">Bakery Items</option>
-                                    <option value="prepared_meals">Prepared Meals</option>
-                                    <option value="packaged_goods">Packaged Goods</option>
-                                    <option value="dairy">Dairy Products</option>
-                                    <option value="other">Other</option>
+                                    <option value="">Select Food Type</option>
+                                    <option value="fruits_vegetables">🥕 Fruits & Vegetables</option>
+                                    <option value="bread_rice">🍞 Bread, Rice & Grains</option>
+                                    <option value="cooked_food">🍲 Cooked Food & Meals</option>
+                                    <option value="canned_bottled">🥫 Canned & Bottled Items</option>
+                                    <option value="milk_eggs">🥛 Milk, Eggs & Dairy</option>
+                                    <option value="other">📦 Other Food Items</option>
                                 </select>
                                 @error('food_category')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
-                            
+
                             <div class="col-md-6 mb-3">
                                 <label for="estimated_servings" class="form-label">
                                     <i class="fas fa-users"></i>Estimated Servings
                                 </label>
                                 <input type="number" 
-                                       class="form-control @error('estimated_servings') is-invalid @enderror" 
-                                       id="estimated_servings" 
-                                       name="estimated_servings" 
-                                       required min="1" max="1000"
-                                       placeholder="How many people can this feed?">
+                                    class="form-control @error('estimated_servings') is-invalid @enderror" 
+                                    id="estimated_servings" 
+                                    name="estimated_servings" 
+                                    required min="1" max="1000"
+                                    placeholder="How many people can this feed?">
                                 <div class="form-help">Enter the approximate number of people this food can serve (or quantity for ingredients like rice, oil, etc.)</div>
                                 @error('estimated_servings')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
-                        </div>
 
                         <div class="mb-3">
                             <label for="food_description" class="form-label">

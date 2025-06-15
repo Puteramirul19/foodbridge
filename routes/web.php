@@ -9,17 +9,20 @@ use App\Http\Controllers\RecipientController;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Donation;
 
-// Public Routes - Updated with real data
+// Public Routes - Updated with new requirements
 Route::get('/', function () {
-    // Get real statistics from database
-    $totalServings = \App\Models\Donation::sum('estimated_servings') ?: 0;
+    // UPDATED: Total servings from ONLY completed donations (not expired)
+    $totalServings = \App\Models\Donation::where('status', 'completed')
+                                        ->sum('estimated_servings') ?: 0;
+    
+    // UPDATED: Active donors - just registered donors with active accounts (no donation requirement)
     $activeDonors = \App\Models\User::where('role', 'donor')
                                     ->where('is_active', true)
-                                    ->whereHas('donations')
                                     ->count();
+    
+    // UPDATED: Active recipients - just registered recipients with active accounts (no reservation requirement)
     $activeRecipients = \App\Models\User::where('role', 'recipient')
                                         ->where('is_active', true)
-                                        ->whereHas('reservations')
                                         ->count();
     
     return view('welcome', compact(
@@ -53,8 +56,6 @@ Route::middleware(['auth', 'active', 'role:donor'])->prefix('donor')->name('dono
     Route::post('/confirm-pickup/{reservation}', [ReservationController::class, 'confirmPickup'])->name('confirm-pickup');
     Route::post('/mark-not-collected/{reservation}', [ReservationController::class, 'markNotCollected'])->name('mark-not-collected');
     
-    // REMOVED: Donation Insights route completely
-
     // Existing Donation Routes
     Route::get('/donations', [DonationController::class, 'index'])->name('donations.index');
     Route::get('/donations/create', [DonationController::class, 'create'])->name('donations.create');

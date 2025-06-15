@@ -300,17 +300,17 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="food_category" class="form-label">
-                                    <i class="fas fa-tags"></i>Food Category
+                                    <i class="fas fa-tags"></i>Food Type
                                 </label>
                                 <select class="form-select @error('food_category') is-invalid @enderror" 
                                         id="food_category" name="food_category" required>
-                                    <option value="">Select Food Category</option>
-                                    <option value="produce" {{ $donation->food_category == 'produce' ? 'selected' : '' }}>Fresh Produce</option>
-                                    <option value="bakery" {{ $donation->food_category == 'bakery' ? 'selected' : '' }}>Bakery Items</option>
-                                    <option value="prepared_meals" {{ $donation->food_category == 'prepared_meals' ? 'selected' : '' }}>Prepared Meals</option>
-                                    <option value="packaged_goods" {{ $donation->food_category == 'packaged_goods' ? 'selected' : '' }}>Packaged Goods</option>
-                                    <option value="dairy" {{ $donation->food_category == 'dairy' ? 'selected' : '' }}>Dairy Products</option>
-                                    <option value="other" {{ $donation->food_category == 'other' ? 'selected' : '' }}>Other</option>
+                                    <option value="">Select Food Type</option>
+                                    <option value="fruits_vegetables" {{ $donation->food_category == 'fruits_vegetables' ? 'selected' : '' }}>🥕 Fruits & Vegetables</option>
+                                    <option value="bread_rice" {{ $donation->food_category == 'bread_rice' ? 'selected' : '' }}>🍞 Bread, Rice & Grains</option>
+                                    <option value="cooked_food" {{ $donation->food_category == 'cooked_food' ? 'selected' : '' }}>🍲 Cooked Food & Meals</option>
+                                    <option value="canned_bottled" {{ $donation->food_category == 'canned_bottled' ? 'selected' : '' }}>🥫 Canned & Bottled Items</option>
+                                    <option value="milk_eggs" {{ $donation->food_category == 'milk_eggs' ? 'selected' : '' }}>🥛 Milk, Eggs & Dairy</option>
+                                    <option value="other" {{ $donation->food_category == 'other' ? 'selected' : '' }}>📦 Other Food Items</option>
                                 </select>
                                 @error('food_category')
                                     <div class="invalid-feedback">{{ $message }}</div>
