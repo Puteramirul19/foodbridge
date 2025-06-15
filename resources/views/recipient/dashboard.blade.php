@@ -398,7 +398,7 @@
                                                 <strong>{{ Str::limit($reservation->donation->food_description, 40) }}</strong>
                                                 <small class="d-block text-muted mt-1">
                                                     <i class="fas fa-tag me-1"></i>
-                                                    {{ ucfirst(str_replace('_', ' ', $reservation->donation->food_category)) }}
+                                                    {!! \App\Http\Controllers\DonationController::getFormattedFoodCategory($reservation->donation->food_category) !!}
                                                 </small>
                                             </div>
                                         </td>

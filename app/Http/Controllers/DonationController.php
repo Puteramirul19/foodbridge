@@ -11,11 +11,27 @@ use Illuminate\Support\Facades\Cache;
 class DonationController extends Controller
 {
     /**
+     * Get standardized food categories with emojis
+     */
+    private function getFoodCategories()
+    {
+        return [
+            'fruits_vegetables' => '🥕 Fruits & Vegetables',
+            'bread_rice' => '🍞 Bread, Rice & Grains',
+            'cooked_food' => '🍲 Cooked Food & Meals',
+            'canned_bottled' => '🥫 Canned & Bottled Items',
+            'milk_eggs' => '🥛 Milk, Eggs & Dairy',
+            'other' => '📦 Other Food Items'
+        ];
+    }
+
+    /**
      * Display the create donation form
      */
     public function create()
     {
-        return view('donations.create');
+        $foodCategories = $this->getFoodCategories();
+        return view('donations.create', compact('foodCategories'));
     }
 
     /**
@@ -72,7 +88,8 @@ class DonationController extends Controller
     {
         // Fetch only the current user's donations
         $donations = Auth::user()->donations()->latest()->get();
-        return view('donor.donations', compact('donations'));
+        $foodCategories = $this->getFoodCategories();
+        return view('donor.donations', compact('donations', 'foodCategories'));
     }
 
     /**
@@ -83,7 +100,8 @@ class DonationController extends Controller
         // Authorize the view action
         $this->authorize('view', $donation);
 
-        return view('donor.donation-details', compact('donation'));
+        $foodCategories = $this->getFoodCategories();
+        return view('donor.donation-details', compact('donation', 'foodCategories'));
     }
     
     /**
@@ -93,7 +111,8 @@ class DonationController extends Controller
     {
         // Authorize the edit action
         $this->authorize('update', $donation);
-        return view('donor.edit-donation', compact('donation'));
+        $foodCategories = $this->getFoodCategories();
+        return view('donor.edit-donation', compact('donation', 'foodCategories'));
     }
 
     /**
@@ -162,5 +181,30 @@ class DonationController extends Controller
 
         return redirect()->route('donor.donations.index')
             ->with('success', 'Donation deleted successfully');
+    }
+
+    /**
+     * Get formatted food category display name
+     */
+    public static function getFormattedFoodCategory($category)
+    {
+        $categories = [
+            'fruits_vegetables' => '🥕 Fruits & Vegetables',
+            'bread_rice' => '🍞 Bread, Rice & Grains',
+            'cooked_food' => '🍲 Cooked Food & Meals',
+            'canned_bottled' => '🥫 Canned & Bottled Items',
+            'milk_eggs' => '🥛 Milk, Eggs & Dairy',
+            'other' => '📦 Other Food Items'
+        ];
+
+        return $categories[$category] ?? ucfirst(str_replace('_', ' ', $category));
+    }
+
+    /**
+     * Get formatted food category for HTML safe output
+     */
+    public static function getFormattedFoodCategoryHtml($category)
+    {
+        return htmlspecialchars_decode(self::getFormattedFoodCategory($category), ENT_QUOTES);
     }
 }

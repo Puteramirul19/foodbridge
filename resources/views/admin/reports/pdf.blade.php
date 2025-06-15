@@ -108,7 +108,7 @@
                         <tr>
                             <td>{{ $item->id }}</td>
                             <td>{{ $item->donor->name }}</td>
-                            <td>{{ ucfirst(str_replace('_', ' ', $item->food_category)) }}</td>
+                            <td>{!! \App\Http\Controllers\DonationController::getFormattedFoodCategory($item->food_category) !!}</td>
                             <td>{{ $item->estimated_servings }}</td>
                             <td>{{ ucfirst($item->status) }}</td>
                             <td>{{ $item->created_at->format('d M Y') }}</td>

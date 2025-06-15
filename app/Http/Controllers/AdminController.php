@@ -262,86 +262,86 @@ public function generateReports(Request $request)
 }
 
 /**
- * Generate CSV Report
- */
-private function generateCSVReport($data, $type)
-{
-    // Determine CSV columns and data based on report type
-    $csvRows = [];
-    
-    switch($type) {
-        case 'users':
-            $csvRows[] = ['ID', 'Name', 'Email', 'Phone', 'Role', 'Status', 'Registration Date'];
-            foreach ($data as $user) {
-                $csvRows[] = [
-                    $user->id, 
-                    $user->name, 
-                    $user->email,
-                    $user->phone_number ?? 'Not provided',
-                    $user->role,
-                    $user->is_active ? 'Active' : 'Inactive',
-                    $user->created_at->format('Y-m-d H:i:s')
-                ];
-            }
-            break;
+     * Generate CSV Report
+     */
+    private function generateCSVReport($data, $type)
+    {
+        // Determine CSV columns and data based on report type
+        $csvRows = [];
         
-        case 'donations':
-            $csvRows[] = ['ID', 'Donor', 'Food Category', 'Servings', 'Status', 'Date'];
-            foreach ($data as $donation) {
-                $csvRows[] = [
-                    $donation->id,
-                    $donation->donor->name,
-                    $donation->food_category,
-                    $donation->estimated_servings,
-                    $donation->status,
-                    $donation->created_at->format('Y-m-d H:i:s')
-                ];
-            }
-            break;
-        
-        case 'donors':
-            $csvRows[] = ['ID', 'Name', 'Email', 'Phone', 'Status', 'Total Donations', 'Total Servings'];
-            foreach ($data as $donor) {
-                $csvRows[] = [
-                    $donor->id,
-                    $donor->name,
-                    $donor->email,
-                    $donor->phone_number ?? 'Not provided',
-                    $donor->is_active ? 'Active' : 'Inactive',
-                    $donor->donations->count(),
-                    $donor->donations->sum('estimated_servings')
-                ];
-            }
-            break;
-        
-        case 'recipients':
-            $csvRows[] = ['ID', 'Name', 'Email', 'Phone', 'Status', 'Total Reservations', 'Total Servings Received'];
-            foreach ($data as $recipient) {
-                $csvRows[] = [
-                    $recipient->id,
-                    $recipient->name,
-                    $recipient->email,
-                    $recipient->phone_number ?? 'Not provided',
-                    $recipient->is_active ? 'Active' : 'Inactive',
-                    $recipient->reservations->count(),
-                    $recipient->reservations->sum('donation.estimated_servings')
-                ];
-            }
-            break;
-    }
+        switch($type) {
+            case 'users':
+                $csvRows[] = ['ID', 'Name', 'Email', 'Phone', 'Role', 'Status', 'Registration Date'];
+                foreach ($data as $user) {
+                    $csvRows[] = [
+                        $user->id, 
+                        $user->name, 
+                        $user->email,
+                        $user->phone_number ?? 'Not provided',
+                        $user->role,
+                        $user->is_active ? 'Active' : 'Inactive',
+                        $user->created_at->format('Y-m-d H:i:s')
+                    ];
+                }
+                break;
+            
+            case 'donations':
+                $csvRows[] = ['ID', 'Donor', 'Food Category', 'Servings', 'Status', 'Date'];
+                foreach ($data as $donation) {
+                    $csvRows[] = [
+                        $donation->id,
+                        $donation->donor->name,
+                        \App\Http\Controllers\DonationController::getFormattedFoodCategory($donation->food_category),
+                        $donation->estimated_servings,
+                        $donation->status,
+                        $donation->created_at->format('Y-m-d H:i:s')
+                    ];
+                }
+                break;
+            
+            case 'donors':
+                $csvRows[] = ['ID', 'Name', 'Email', 'Phone', 'Status', 'Total Donations', 'Total Servings'];
+                foreach ($data as $donor) {
+                    $csvRows[] = [
+                        $donor->id,
+                        $donor->name,
+                        $donor->email,
+                        $donor->phone_number ?? 'Not provided',
+                        $donor->is_active ? 'Active' : 'Inactive',
+                        $donor->donations->count(),
+                        $donor->donations->sum('estimated_servings')
+                    ];
+                }
+                break;
+            
+            case 'recipients':
+                $csvRows[] = ['ID', 'Name', 'Email', 'Phone', 'Status', 'Total Reservations', 'Total Servings Received'];
+                foreach ($data as $recipient) {
+                    $csvRows[] = [
+                        $recipient->id,
+                        $recipient->name,
+                        $recipient->email,
+                        $recipient->phone_number ?? 'Not provided',
+                        $recipient->is_active ? 'Active' : 'Inactive',
+                        $recipient->reservations->count(),
+                        $recipient->reservations->sum('donation.estimated_servings')
+                    ];
+                }
+                break;
+        }
 
-    // Generate CSV file
-    $filename = $type . '_report_' . now()->format('YmdHis') . '.csv';
-    $handle = fopen($filename, 'w');
-    
-    foreach ($csvRows as $row) {
-        fputcsv($handle, $row);
-    }
-    
-    fclose($handle);
+        // Generate CSV file
+        $filename = $type . '_report_' . now()->format('YmdHis') . '.csv';
+        $handle = fopen($filename, 'w');
+        
+        foreach ($csvRows as $row) {
+            fputcsv($handle, $row);
+        }
+        
+        fclose($handle);
 
-    return response()->download($filename)->deleteFileAfterSend();
-}
+        return response()->download($filename)->deleteFileAfterSend();
+    }
 
 /**
  * Generate PDF Report

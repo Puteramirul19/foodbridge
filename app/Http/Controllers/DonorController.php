@@ -9,6 +9,21 @@ use Carbon\Carbon;
 class DonorController extends Controller
 {
     /**
+     * Get standardized food categories with emojis
+     */
+    private function getFoodCategories()
+    {
+        return [
+            'fruits_vegetables' => '🥕 Fruits & Vegetables',
+            'bread_rice' => '🍞 Bread, Rice & Grains',
+            'cooked_food' => '🍲 Cooked Food & Meals',
+            'canned_bottled' => '🥫 Canned & Bottled Items',
+            'milk_eggs' => '🥛 Milk, Eggs & Dairy',
+            'other' => '📦 Other Food Items'
+        ];
+    }
+
+    /**
      * Show the donor dashboard with comprehensive donation insights
      * UPDATED: Total servings only count COMPLETED donations
      */
@@ -79,13 +94,17 @@ class DonorController extends Controller
             $finalMonthlyDonations[$monthName] = $monthlyDonations->get($monthName, ['count' => 0, 'servings' => 0]);
         }
 
+        // Get food categories for consistent display
+        $foodCategories = $this->getFoodCategories();
+
         return view('donor.dashboard', [
             'donations' => $donations,
             'recentDonations' => $recentDonations,
             'pendingPickups' => $pendingPickups,
             'stats' => $stats,
             'donationsByCategory' => $donationsByCategory,
-            'monthlyDonations' => $finalMonthlyDonations
+            'monthlyDonations' => $finalMonthlyDonations,
+            'foodCategories' => $foodCategories
         ]);
     }
 
@@ -106,6 +125,8 @@ class DonorController extends Controller
             ->latest()
             ->get();
 
-        return view('donor.pending-pickups', compact('pendingPickups'));
+        $foodCategories = $this->getFoodCategories();
+
+        return view('donor.pending-pickups', compact('pendingPickups', 'foodCategories'));
     }
 }

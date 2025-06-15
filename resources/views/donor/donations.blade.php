@@ -347,7 +347,7 @@
                     <div class="donation-card">
                         <div class="card-header-custom">
                             <span class="category-badge">
-                                {{ ucfirst(str_replace('_', ' ', $donation->food_category)) }}
+                                {!! \App\Http\Controllers\DonationController::getFormattedFoodCategory($donation->food_category) !!}
                             </span>
                             @if($showExpiryWarnings && $isExpiringSoon && !$isExpired)
                                 <span class="urgency-badge">

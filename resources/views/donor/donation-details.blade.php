@@ -341,7 +341,7 @@
                                 <th>Food Category</th>
                                 <td>
                                     <span class="category-badge">
-                                        {{ ucfirst(str_replace('_', ' ', $donation->food_category)) }}
+                                        {!! \App\Http\Controllers\DonationController::getFormattedFoodCategory($donation->food_category) !!}
                                     </span>
                                 </td>
                             </tr>
