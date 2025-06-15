@@ -294,9 +294,6 @@
                 <span class="fw-bold" style="color: #4A5568; font-size: 1.25rem;">FoodBridge</span>
             </a>
             <div class="ms-auto">
-                <a href="{{ route('donor.donations.create') }}" class="btn btn-primary me-2">
-                    <i class="fas fa-plus me-2"></i>New Donation
-                </a>
                 <a href="{{ route('donor.dashboard') }}" class="btn btn-outline-primary me-2">
                     <i class="fas fa-tachometer-alt me-2"></i>Dashboard
                 </a>
