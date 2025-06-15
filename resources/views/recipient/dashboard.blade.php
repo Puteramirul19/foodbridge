@@ -161,9 +161,6 @@
             background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
             padding: 25px 30px;
             border-bottom: 1px solid #e9ecef;
-            display: flex;
-            justify-content: between;
-            align-items: center;
         }
         
         .section-title {
@@ -254,22 +251,6 @@
             font-size: 1.3rem;
         }
         
-        .btn-view-all {
-            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
-            color: #2c3e50;
-            border: none;
-            border-radius: 10px;
-            padding: 8px 20px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-view-all:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            color: #2c3e50;
-        }
-        
         .btn-eye {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -315,9 +296,6 @@
                 <span class="fw-bold" style="color: #4A5568; font-size: 1.25rem;">FoodBridge</span>
             </a>
             <div class="ms-auto">
-                <a href="{{ route('recipient.donations.browse') }}" class="btn btn-outline-primary me-2">
-                    <i class="fas fa-utensils me-2"></i>Browse Donations
-                </a>
                 <a href="{{ route('profile.show') }}" class="btn btn-outline-info me-2">
                     <i class="fas fa-user me-2"></i>Profile
                 </a>
@@ -388,9 +366,6 @@
                 <h3 class="section-title">
                     <i class="fas fa-history me-2"></i>Recent Reservations
                 </h3>
-                <a href="{{ route('recipient.reservations') }}" class="btn btn-view-all">
-                    <i class="fas fa-arrow-right me-1"></i>View All
-                </a>
             </div>
 
             <div class="section-body">
@@ -506,22 +481,20 @@
             }
         };
 
-        // Reservation Status Chart
+        // Reservation Status Chart - Only show Pending and Completed
         const statusCtx = document.getElementById('reservationStatusChart').getContext('2d');
         new Chart(statusCtx, {
             type: 'doughnut',
             data: {
-                labels: ['Pending', 'Completed', 'Other'],
+                labels: ['Pending', 'Completed'],
                 datasets: [{
                     data: [
                         {{ $stats['activeReservations'] }},
-                        {{ $stats['completedReservations'] }},
-                        {{ $stats['totalReservations'] - ($stats['activeReservations'] + $stats['completedReservations']) }}
+                        {{ $stats['completedReservations'] }}
                     ],
                     backgroundColor: [
                         colors.gradient(statusCtx, '#fdcb6e', '#e17055'),
-                        colors.gradient(statusCtx, '#00b894', '#00cec9'),
-                        colors.gradient(statusCtx, '#ddd', '#bbb')
+                        colors.gradient(statusCtx, '#00b894', '#00cec9')
                     ],
                     borderWidth: 0,
                     cutout: '60%'

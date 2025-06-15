@@ -262,19 +262,6 @@
             line-height: 1.6;
         }
         
-        .timestamp-info {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 10px 15px;
-            margin-top: 10px;
-            border-left: 4px solid #667eea;
-        }
-        
-        .timestamp-info small {
-            color: #6c757d;
-            font-weight: 500;
-        }
-        
         @media (max-width: 768px) {
             .details-section {
                 flex-direction: column;
@@ -303,8 +290,8 @@
                 <span class="fw-bold" style="color: #4A5568; font-size: 1.25rem;">FoodBridge</span>
             </a>
             <div class="ms-auto">
-                <a href="{{ route('donor.donations.index') }}" class="btn btn-outline-primary me-2">
-                    <i class="fas fa-list me-2"></i>My Donations
+                <a href="{{ route('donor.dashboard') }}" class="btn btn-outline-primary me-2">
+                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
                 </a>
                 <form method="POST" action="{{ route('logout') }}" class="d-inline">
                     @csrf
@@ -379,15 +366,20 @@
                                         $isExpiringSoon = $daysLeft <= 1 && !$isExpired;
                                     @endphp
                                     <strong>{{ $bestBeforeDate->format('d M Y') }}</strong>
-                                    @if($isExpired)
+                                    @if($donation->status === 'completed')
+                                        <div class="expiry-info" style="background: rgba(116, 185, 255, 0.15); border: 1px solid rgba(116, 185, 255, 0.3); color: #0984e3;">
+                                            <i class="fas fa-check-circle me-2"></i>
+                                            <strong>Completed</strong>
+                                        </div>
+                                    @elseif($isExpired)
                                         <div class="expiry-info expiry-danger">
                                             <i class="fas fa-exclamation-triangle me-2"></i>
-                                            <strong>Expired</strong> - This donation has passed its best before date
+                                            <strong>Expired</strong>
                                         </div>
                                     @elseif($isExpiringSoon)
                                         <div class="expiry-info expiry-warning">
                                             <i class="fas fa-clock me-2"></i>
-                                            <strong>Expiring Soon</strong> - Only {{ $daysLeft == 0 ? 'today' : $daysLeft . ' day(s)' }} left
+                                            <strong>Expiring Soon</strong>
                                         </div>
                                     @endif
                                 </td>
@@ -432,70 +424,37 @@
                             <p>{{ $donation->additional_instructions }}</p>
                         </div>
                     @endif
-
-                    <div class="timestamp-info">
-                        <small>
-                            <i class="fas fa-calendar-plus me-2"></i>
-                            <strong>Created:</strong> {{ $donation->created_at->format('d M Y \a\t H:i:s') }}
-                        </small>
-                        @if($donation->updated_at != $donation->created_at)
-                            <br>
-                            <small>
-                                <i class="fas fa-edit me-2"></i>
-                                <strong>Last Updated:</strong> {{ $donation->updated_at->format('d M Y \a\t H:i:s') }}
-                            </small>
-                        @endif
-                    </div>
                 </div>
 
                 <!-- Sidebar Details Column -->
                 <div class="sidebar-details">
-                    <div class="info-card">
-                        <div class="info-card-header">
-                            <i class="fas fa-chart-pie"></i>
-                            <h4>Status Information</h4>
-                        </div>
-                        <div class="p-3">
-                            <div class="text-center mb-3">
-                                <span class="status-badge status-{{ $donation->status }}">
-                                    <i class="fas {{ 
-                                        $donation->status == 'available' ? 'fa-check-circle' : 
-                                        ($donation->status == 'reserved' ? 'fa-clock' : 
-                                        ($donation->status == 'completed' ? 'fa-thumbs-up' : 'fa-times-circle'))
-                                    }}"></i>
-                                    {{ ucfirst($donation->status) }}
-                                </span>
+                    @if($donation->status == 'reserved' || $donation->status == 'completed')
+                        <div class="info-card">
+                            <div class="info-card-header">
+                                <i class="fas fa-users"></i>
+                                <h4>Reservation Info</h4>
                             </div>
-                            <div class="text-center">
-                                @switch($donation->status)
-                                    @case('available')
-                                        <p class="text-success mb-0">
-                                            <i class="fas fa-info-circle me-1"></i>
-                                            This donation is available for recipients to request
-                                        </p>
-                                        @break
-                                    @case('reserved')
-                                        <p class="text-warning mb-0">
-                                            <i class="fas fa-info-circle me-1"></i>
-                                            This donation has been reserved by a recipient
-                                        </p>
-                                        @break
-                                    @case('completed')
-                                        <p class="text-info mb-0">
-                                            <i class="fas fa-check-circle me-1"></i>
-                                            This donation has been successfully completed
-                                        </p>
-                                        @break
-                                    @case('expired')
-                                        <p class="text-danger mb-0">
-                                            <i class="fas fa-times-circle me-1"></i>
-                                            This donation has expired
-                                        </p>
-                                        @break
-                                @endswitch
+                            <div class="p-3">
+                                @php
+                                    $reservation = $donation->reservations->first();
+                                @endphp
+                                @if($reservation)
+                                    <p class="mb-2">
+                                        <strong>Recipient:</strong><br>
+                                        {{ $reservation->recipient->name }}
+                                    </p>
+                                    <p class="mb-2">
+                                        <strong>Pickup Date:</strong><br>
+                                        {{ $reservation->pickup_date->format('d M Y') }}
+                                    </p>
+                                    <p class="mb-0">
+                                        <strong>Pickup Time:</strong><br>
+                                        {{ \Carbon\Carbon::parse($reservation->pickup_time)->format('g:i A') }}
+                                    </p>
+                                @endif
                             </div>
                         </div>
-                    </div>
+                    @endif
 
                     <div class="info-card">
                         <div class="info-card-header">
@@ -527,34 +486,6 @@
                             </div>
                         </div>
                     </div>
-
-                    @if($donation->status == 'reserved' || $donation->status == 'completed')
-                        <div class="info-card">
-                            <div class="info-card-header">
-                                <i class="fas fa-users"></i>
-                                <h4>Reservation Info</h4>
-                            </div>
-                            <div class="p-3">
-                                @php
-                                    $reservation = $donation->reservations->first();
-                                @endphp
-                                @if($reservation)
-                                    <p class="mb-2">
-                                        <strong>Recipient:</strong><br>
-                                        {{ $reservation->recipient->name }}
-                                    </p>
-                                    <p class="mb-2">
-                                        <strong>Pickup Date:</strong><br>
-                                        {{ $reservation->pickup_date->format('d M Y') }}
-                                    </p>
-                                    <p class="mb-0">
-                                        <strong>Pickup Time:</strong><br>
-                                        {{ \Carbon\Carbon::parse($reservation->pickup_time)->format('g:i A') }}
-                                    </p>
-                                @endif
-                            </div>
-                        </div>
-                    @endif
                 </div>
             </div>
         </div>
