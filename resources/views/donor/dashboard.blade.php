@@ -474,89 +474,96 @@
             </a>
         </div>
 
-        {{-- Recent Donations --}}
-        <div class="section-body">
-            @if($recentDonations->isEmpty())
-                <div class="empty-state">
-                    <i class="fas fa-box-open fa-5x empty-icon"></i>
-                    <h3 class="mt-3 mb-2">No Donations Yet</h3>
-                    <p class="text-muted fs-5 mb-4">Start making a difference by creating your first donation and helping your community.</p>
-                    <a href="{{ route('donor.donations.create') }}" class="btn btn-action">
-                        <i class="fas fa-plus me-2"></i>Create Your First Donation
-                    </a>
-                </div>
-            @else
-                <div class="table-responsive">
-                    <table class="table table-modern">
-                        <thead>
-                            <tr>
-                                <th>Food Description</th>
-                                <th>Category</th>
-                                <th>Servings</th>
-                                <th>Best Before</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($recentDonations as $donation)
+        {{-- Recent Donations Section (Separate Card) --}}
+        <div class="section-card">
+            <div class="section-header">
+                <h3 class="section-title">
+                    <i class="fas fa-history me-2"></i>Recent Donations
+                </h3>
+            </div>
+            <div class="section-body">
+                @if($recentDonations->isEmpty())
+                    <div class="empty-state">
+                        <i class="fas fa-box-open fa-5x empty-icon"></i>
+                        <h3 class="mt-3 mb-2">No Donations Yet</h3>
+                        <p class="text-muted fs-5 mb-4">Start making a difference by creating your first donation and helping your community.</p>
+                        <a href="{{ route('donor.donations.create') }}" class="btn btn-action">
+                            <i class="fas fa-plus me-2"></i>Create Your First Donation
+                        </a>
+                    </div>
+                @else
+                    <div class="table-responsive">
+                        <table class="table table-modern">
+                            <thead>
                                 <tr>
-                                    <td>
-                                        <div>
-                                            <strong>{{ Str::limit($donation->food_description, 40) }}</strong>
-                                            <small class="d-block text-muted mt-1">
-                                                <i class="fas fa-calendar me-1"></i>
-                                                Created {{ $donation->created_at->format('d M Y') }}
-                                            </small>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span class="badge" style="background-color: #667eea; color: white;">
-                                            {!! \App\Http\Controllers\DonationController::getFormattedFoodCategory($donation->food_category) !!}
-                                        </span>
-                                    </td>
-                                    <td>{{ $donation->estimated_servings }}</td>
-                                    <td>
-                                        <div>
-                                            <i class="fas fa-calendar-alt me-2 text-primary"></i>
-                                            {{ \Carbon\Carbon::parse($donation->best_before)->format('d M Y') }}
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-{{ 
-                                            $donation->status == 'available' ? 'success' : 
-                                            ($donation->status == 'reserved' ? 'warning' : 
-                                            ($donation->status == 'completed' ? 'info' : 'danger'))
-                                        }}">
-                                            {{ ucfirst($donation->status) }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div class="btn-group" role="group">
-                                            {{-- Edit Button --}}
-                                            @if($donation->canBeEdited())
-                                                <a href="{{ route('donor.donations.edit', $donation) }}" 
-                                                class="btn btn-edit btn-sm">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-                                            @else
-                                                <button class="btn btn-edit btn-sm btn-disabled" 
-                                                        disabled 
-                                                        title="{{ $donation->isExpired() ? 'Cannot edit expired donation' : 'Cannot edit reserved/completed donation' }}">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                            @endif
-                                        </div>
-                                    </td>
+                                    <th>Food Description</th>
+                                    <th>Category</th>
+                                    <th>Servings</th>
+                                    <th>Best Before</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
                                 </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            @endif
+                            </thead>
+                            <tbody>
+                                @foreach($recentDonations as $donation)
+                                    <tr>
+                                        <td>
+                                            <div>
+                                                <strong>{{ Str::limit($donation->food_description, 40) }}</strong>
+                                                <small class="d-block text-muted mt-1">
+                                                    <i class="fas fa-calendar me-1"></i>
+                                                    Created {{ $donation->created_at->format('d M Y') }}
+                                                </small>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge" style="background-color: #667eea; color: white;">
+                                                {!! \App\Http\Controllers\DonationController::getFormattedFoodCategory($donation->food_category) !!}
+                                            </span>
+                                        </td>
+                                        <td>{{ $donation->estimated_servings }}</td>
+                                        <td>
+                                            <div>
+                                                <i class="fas fa-calendar-alt me-2 text-primary"></i>
+                                                {{ \Carbon\Carbon::parse($donation->best_before)->format('d M Y') }}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-{{ 
+                                                $donation->status == 'available' ? 'success' : 
+                                                ($donation->status == 'reserved' ? 'warning' : 
+                                                ($donation->status == 'completed' ? 'info' : 'danger'))
+                                            }}">
+                                                {{ ucfirst($donation->status) }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                {{-- Edit Button --}}
+                                                @if($donation->canBeEdited())
+                                                    <a href="{{ route('donor.donations.edit', $donation) }}" 
+                                                    class="btn btn-edit btn-sm">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                @else
+                                                    <button class="btn btn-edit btn-sm btn-disabled" 
+                                                            disabled 
+                                                            title="{{ $donation->isExpired() ? 'Cannot edit expired donation' : 'Cannot edit reserved/completed donation' }}">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                @endif
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @endif
+            </div>
         </div>
 
-        {{-- Charts Row --}}
+        {{-- Charts Row (Separate from Recent Donations) --}}
         <div class="row">
             <div class="col-lg-6 mb-4">
                 <div class="chart-container">

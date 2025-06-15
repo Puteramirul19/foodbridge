@@ -134,6 +134,16 @@
             color: white;
         }
         
+        .category-badge {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: none;
+        }
+        
         @media (max-width: 768px) {
             .details-section {
                 flex-direction: column;
@@ -197,8 +207,8 @@
                             <tr>
                                 <th>Food Category</th>
                                 <td>
-                                    <span class="badge" style="background-color: #667eea; color: white;">
-                                        {{ ucfirst(str_replace('_', ' ', $reservation->donation->food_category)) }}
+                                    <span class="category-badge">
+                                        {!! \App\Http\Controllers\DonationController::getFormattedFoodCategory($reservation->donation->food_category) !!}
                                     </span>
                                 </td>
                             </tr>
