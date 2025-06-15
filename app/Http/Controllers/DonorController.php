@@ -52,7 +52,7 @@ class DonorController extends Controller
                    $donation->reservations->where('status', 'pending')->count() > 0;
         });
 
-        // UPDATED: Calculate donations by food category (ONLY COMPLETED DONATIONS)
+        // UPDATED: Calculate donations by food category (ONLY COMPLETED DONATIONS) with new categories
         $completedDonations = $donations->where('status', 'completed');
         $donationsByCategory = $completedDonations->groupBy('food_category')
             ->map(function ($group) {

@@ -282,9 +282,6 @@
                 <a href="{{ route('donor.dashboard') }}" class="btn btn-outline-primary me-2">
                     <i class="fas fa-tachometer-alt me-2"></i>Dashboard
                 </a>
-                <a href="{{ route('donor.donations.index') }}" class="btn btn-outline-secondary me-2">
-                    <i class="fas fa-list me-2"></i>All Donations
-                </a>
                 <form method="POST" action="{{ route('logout') }}" class="d-inline">
                     @csrf
                     <button type="submit" class="btn btn-outline-danger">
@@ -333,7 +330,6 @@
             <ul class="mb-0">
                 <li><strong>Confirm Pickup:</strong> Mark when the recipient has successfully collected the donation</li>
                 <li><strong>Not Collected:</strong> Use when the recipient didn't show up or couldn't collect the donation</li>
-                <li><strong>Contact Recipients:</strong> Use the contact information provided to coordinate pickups</li>
             </ul>
         </div>
 
@@ -343,13 +339,10 @@
                 <i class="fas fa-check-circle fa-5x empty-icon"></i>
                 <h3 class="text-success">All Caught Up!</h3>
                 <p class="lead">You have no pending pickups at the moment.</p>
-                <p>All your donations are either available, completed, or expired. Keep up the great work in helping reduce food waste!</p>
+                <p>Keep up the great work in helping reduce food waste!</p>
                 <div class="mt-4">
-                    <a href="{{ route('donor.dashboard') }}" class="btn btn-primary me-2">
+                    <a href="{{ route('donor.dashboard') }}" class="btn btn-primary">
                         <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
-                    </a>
-                    <a href="{{ route('donor.donations.create') }}" class="btn btn-success">
-                        <i class="fas fa-plus me-2"></i>Create New Donation
                     </a>
                 </div>
             </div>
@@ -453,10 +446,8 @@
                                                     <span class="badge bg-warning text-dark ms-2">Today</span>
                                                 @elseif($reservation->pickup_date->isPast())
                                                     <span class="badge bg-danger ms-2">
-                                                        {{ $reservation->pickup_date->diffForHumans() }}
+                                                        Overdue
                                                     </span>
-                                                @elseif($reservation->pickup_date->isFuture())
-                                                    <br><small class="text-muted">{{ $reservation->pickup_date->diffForHumans() }}</small>
                                                 @endif
                                             </div>
                                         </div>

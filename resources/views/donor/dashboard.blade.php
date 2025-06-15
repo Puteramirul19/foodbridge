@@ -252,7 +252,7 @@
         }
         
         .empty-icon {
-            color: #bdc3c7;
+            color: #00b894;
             margin-bottom: 20px;
         }
         
@@ -392,7 +392,7 @@
                                     <div>
                                         <strong>{{ Str::limit($donation->food_description, 50) }}</strong>
                                         <small class="d-block text-muted">
-                                            Pickup: {{ $reservation->pickup_date->format('d M Y') }} at {{ $reservation->pickup_time }}
+                                            Pickup: {{ $reservation->pickup_date->format('d M Y') }} at {{ $reservation->formatted_pickup_time }}
                                             by {{ $reservation->recipient->name }}
                                         </small>
                                     </div>
