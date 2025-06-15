@@ -159,17 +159,42 @@ class Reservation extends Model
 
     /**
      * Boot method to handle model events
+     * FIXED: Properly update donation status when reservations are deleted or updated
      */
     protected static function booted()
     {
         parent::boot();
 
-        // When a reservation is deleted, update the donation status
+        // When a reservation is deleted (cancelled), update the donation status
         static::deleting(function ($reservation) {
+            // Only update if it was a pending reservation
             if ($reservation->status === 'pending') {
                 $donation = $reservation->donation;
-                // After this reservation is deleted, check if donation should be available or expired
-                $donation->status = $donation->determineStatus();
+                
+                // After this reservation is deleted, determine new status
+                // We need to check what the status will be AFTER deletion
+                $remainingPendingCount = $donation->reservations()
+                    ->where('status', 'pending')
+                    ->where('id', '!=', $reservation->id) // Exclude the one being deleted
+                    ->count();
+                
+                $hasCompleted = $donation->reservations()
+                    ->where('status', 'completed')
+                    ->exists();
+                
+                // Determine new status
+                if ($donation->isExpired()) {
+                    $newStatus = 'expired';
+                } elseif ($hasCompleted) {
+                    $newStatus = 'completed';
+                } elseif ($remainingPendingCount > 0) {
+                    $newStatus = 'reserved';
+                } else {
+                    // No more pending reservations, back to available
+                    $newStatus = 'available';
+                }
+                
+                $donation->status = $newStatus;
                 $donation->save();
             }
         });
@@ -177,8 +202,25 @@ class Reservation extends Model
         // When a reservation status is updated, update the donation status
         static::updated(function ($reservation) {
             $donation = $reservation->donation;
-            $donation->status = $donation->determineStatus();
-            $donation->save();
+            $newStatus = $donation->determineStatus();
+            
+            if ($donation->status !== $newStatus) {
+                $donation->status = $newStatus;
+                $donation->save();
+            }
+        });
+
+        // When a new reservation is created, update donation status
+        static::created(function ($reservation) {
+            if ($reservation->status === 'pending') {
+                $donation = $reservation->donation;
+                $newStatus = $donation->determineStatus();
+                
+                if ($donation->status !== $newStatus) {
+                    $donation->status = $newStatus;
+                    $donation->save();
+                }
+            }
         });
     }
 }

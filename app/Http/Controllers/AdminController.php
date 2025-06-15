@@ -14,16 +14,24 @@ class AdminController extends Controller
 {
 /**
 * Show the admin dashboard with platform statistics
+* UPDATED: Exclude expired donations from main statistics
 */
 public function dashboard()
 {
 // Count total users by role
 $totalDonors = User::where('role', 'donor')->count();
 $totalRecipients = User::where('role', 'recipient')->count();
+
+// Count total donations (include all for total count)
 $totalDonations = Donation::count();
-    // Get donations for the last 6 months
+
+// Count active donations (exclude expired)
+$activeDonations = Donation::whereNotIn('status', ['expired'])->count();
+
+    // Get donations for the last 6 months (EXCLUDE EXPIRED)
     $monthlyDonations = Donation::selectRaw('MONTH(created_at) as month, COUNT(*) as count')
         ->whereRaw('created_at >= DATE_SUB(CURRENT_DATE, INTERVAL 6 MONTH)')
+        ->whereNotIn('status', ['expired']) // EXCLUDE EXPIRED
         ->groupBy('month')
         ->orderBy('month')
         ->get()
@@ -38,11 +46,24 @@ $totalDonations = Donation::count();
         $donationTrends[] = $monthlyDonations->get($i, 0);
     }
 
+    // Additional statistics for better insights
+    $donationStats = [
+        'total' => $totalDonations,
+        'active' => $activeDonations,
+        'available' => Donation::where('status', 'available')->count(),
+        'reserved' => Donation::where('status', 'reserved')->count(),
+        'completed' => Donation::where('status', 'completed')->count(),
+        'expired' => Donation::where('status', 'expired')->count(),
+        'totalServings' => Donation::sum('estimated_servings'),
+        'activeServings' => Donation::whereNotIn('status', ['expired'])->sum('estimated_servings')
+    ];
+
     return view('admin.dashboard', [
         'totalDonors' => $totalDonors,
         'totalRecipients' => $totalRecipients,
-        'totalDonations' => $totalDonations,
-        'donationTrends' => $donationTrends
+        'totalDonations' => $activeDonations, // Show active donations in main dashboard
+        'donationTrends' => $donationTrends,
+        'donationStats' => $donationStats // Pass detailed stats for advanced view
     ]);
 }
 
@@ -122,6 +143,7 @@ public function showReportForm()
 
 /**
  * Generate reports (CSV or PDF)
+ * UPDATED: Handle expired donations appropriately in reports
  */
 public function generateReports(Request $request)
 {
@@ -136,7 +158,8 @@ public function generateReports(Request $request)
             Rule::in(['csv', 'pdf'])
         ],
         'start_date' => 'nullable|date|before_or_equal:today',
-        'end_date' => 'nullable|date|after_or_equal:start_date|before_or_equal:today'
+        'end_date' => 'nullable|date|after_or_equal:start_date|before_or_equal:today',
+        'include_expired' => 'nullable|boolean' // New option to include/exclude expired
     ]);
 
     // Custom error messages
@@ -166,15 +189,29 @@ public function generateReports(Request $request)
         $query = match($request->report_type) {
             'users' => User::query(),
             'donations' => Donation::with('donor')
+                // OPTION: Include or exclude expired donations
+                ->when(!$request->include_expired, function ($q) {
+                    return $q->whereNotIn('status', ['expired']);
+                })
                 ->when($request->start_date && $request->end_date, function ($q) use ($request) {
                     return $q->whereBetween('created_at', [$request->start_date, $request->end_date]);
                 }),
-            'donors' => User::with('donations')
+            'donors' => User::with(['donations' => function($q) use ($request) {
+                    // For donor reports, optionally exclude expired donations
+                    if (!$request->include_expired) {
+                        $q->whereNotIn('status', ['expired']);
+                    }
+                }])
                 ->where('role', 'donor')
                 ->when($request->start_date && $request->end_date, function ($q) use ($request) {
                     return $q->whereBetween('created_at', [$request->start_date, $request->end_date]);
                 }),
-            'recipients' => User::with('reservations.donation')
+            'recipients' => User::with(['reservations.donation' => function($q) use ($request) {
+                    // For recipient reports, optionally exclude expired donations
+                    if (!$request->include_expired) {
+                        $q->whereNotIn('status', ['expired']);
+                    }
+                }])
                 ->where('role', 'recipient')
                 ->when($request->start_date && $request->end_date, function ($q) use ($request) {
                     return $q->whereBetween('created_at', [$request->start_date, $request->end_date]);
@@ -189,7 +226,8 @@ public function generateReports(Request $request)
             Log::info('No data found for report generation', [
                 'report_type' => $request->report_type,
                 'start_date' => $request->start_date,
-                'end_date' => $request->end_date
+                'end_date' => $request->end_date,
+                'include_expired' => $request->include_expired
             ]);
 
             return redirect()->back()
@@ -201,6 +239,7 @@ public function generateReports(Request $request)
             'type' => $request->report_type,
             'format' => $request->format,
             'records_count' => $data->count(),
+            'include_expired' => $request->include_expired,
             'user' => Auth::user()->name
         ]);
 

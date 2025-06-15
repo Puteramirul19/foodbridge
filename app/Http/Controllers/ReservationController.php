@@ -71,9 +71,7 @@ class ReservationController extends Controller
             'pickup_date' => $request->pickup_date
         ]);
 
-        // Update donation status
-        $donation->status = 'reserved';
-        $donation->save();
+        // The model event will automatically update donation status to 'reserved'
 
         return redirect()->route('recipient.reservations')
             ->with('success', 'Donation reserved successfully. You can pick it up until the expiry date.');
@@ -81,22 +79,16 @@ class ReservationController extends Controller
 
     /**
      * Cancel a reservation (by recipient)
-     * This DELETES the reservation and makes donation available again
+     * This DELETES the reservation and makes donation available again (if not expired)
      */
     public function cancel(Reservation $reservation)
     {
         // Ensure the user can only cancel their own reservations
         $this->authorize('cancel', $reservation);
 
-        // Get the donation
-        $donation = $reservation->donation;
-
         // Delete the reservation completely
+        // The model event will automatically update the donation status
         $reservation->delete();
-
-        // Update donation status back to available (or expired if past date)
-        $donation->status = $donation->determineStatus();
-        $donation->save();
 
         return redirect()->route('recipient.reservations')
             ->with('success', 'Reservation cancelled successfully. The donation is now available for others.');
@@ -117,10 +109,7 @@ class ReservationController extends Controller
         $reservation->status = 'completed';
         $reservation->save();
 
-        // Update donation status
-        $donation = $reservation->donation;
-        $donation->status = 'completed';
-        $donation->save();
+        // The model event will automatically update donation status to 'completed'
 
         return redirect()->back()
             ->with('success', 'Pickup confirmed successfully. Thank you for completing this donation!');
@@ -128,7 +117,7 @@ class ReservationController extends Controller
 
     /**
      * Mark pickup as not collected (by donor)
-     * This DELETES the reservation and makes donation available again
+     * This DELETES the reservation and makes donation available again (if not expired)
      */
     public function markNotCollected(Reservation $reservation)
     {
@@ -137,16 +126,16 @@ class ReservationController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        // Get the donation
+        // Get the donation before deleting reservation
         $donation = $reservation->donation;
 
         // Delete the reservation completely (same as recipient cancelling)
+        // The model event will automatically determine and set the correct donation status
         $reservation->delete();
 
-        // Update donation status back to available (or expired if past date)
-        $donation->status = $donation->determineStatus();
-        $donation->save();
-
+        // Refresh donation to get updated status
+        $donation->refresh();
+        
         $statusText = $donation->status === 'expired' ? 'expired' : 'available again';
 
         return redirect()->back()

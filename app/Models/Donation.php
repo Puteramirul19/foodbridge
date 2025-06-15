@@ -217,7 +217,7 @@ class Donation extends Model
 
     /**
      * Determine the status of the donation based on current conditions
-     * SIMPLIFIED LOGIC: Only 4 statuses - available, reserved, completed, expired
+     * FIXED LOGIC: Properly handle cancelled reservations
      * 
      * @return string
      */
@@ -238,7 +238,7 @@ class Donation extends Model
             return 'reserved';
         }
 
-        // Otherwise, it's available
+        // OTHERWISE, it's available (this includes when reservations are cancelled/deleted)
         return 'available';
     }
 

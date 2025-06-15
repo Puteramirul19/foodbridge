@@ -91,29 +91,8 @@ Artisan::command('donations:cleanup-expired {--dry-run : Show what would be upda
     $this->info("Successfully updated {$updatedReserved} reserved donations to expired.");
     $this->info("Successfully removed {$deletedReservations} overdue reservations.");
 
-    // Optional: Clean up very old expired donations
-    if ($this->confirm('Do you want to clean up expired donations older than 30 days?')) {
-        $oldExpiredDonations = Donation::where('status', 'expired')
-            ->where('best_before', '<', Carbon::today()->subDays(30))
-            ->get();
-
-        if ($oldExpiredDonations->count() > 0) {
-            $this->info("Found {$oldExpiredDonations->count()} old expired donations.");
-            
-            if ($this->confirm('Delete these old expired donations permanently?')) {
-                $deletedCount = Donation::where('status', 'expired')
-                    ->where('best_before', '<', Carbon::today()->subDays(30))
-                    ->delete();
-                
-                $this->info("Deleted {$deletedCount} old expired donations.");
-            } else {
-                $this->info('Skipped deletion of old expired donations.');
-            }
-        } else {
-            $this->info('No old expired donations found to clean up.');
-        }
-    }
-
+    // REMOVED: Auto-deletion of old expired donations
+    $this->info('Note: Expired donations are kept for historical records and will not be auto-deleted.');
     $this->info('Cleanup completed successfully!');
 })->purpose('Mark expired donations as expired and remove overdue reservations');
 
@@ -179,7 +158,7 @@ Artisan::command('reservations:cleanup-overdue {--dry-run : Show what would be u
 Schedule::command('donations:cleanup-expired')->daily()->at('02:00');
 Schedule::command('reservations:cleanup-overdue')->daily()->at('02:30');
 
-// Command to generate donation statistics (simplified)
+// Command to generate donation statistics (UPDATED: Exclude expired donations)
 Artisan::command('donations:stats', function () {
     $total = Donation::count();
     $available = Donation::where('status', 'available')->count();
@@ -214,10 +193,10 @@ Artisan::command('donations:stats', function () {
         ]
     );
 
-    // Additional insights
-    $totalServings = Donation::sum('estimated_servings');
+    // Additional insights (EXCLUDE EXPIRED DONATIONS)
+    $totalServings = Donation::whereNotIn('status', ['expired'])->sum('estimated_servings');
     $completedServings = Donation::where('status', 'completed')->sum('estimated_servings');
-    $this->info("Total Food Servings: {$totalServings}");
+    $this->info("Total Food Servings (Active): {$totalServings}");
     $this->info("Completed Food Servings: {$completedServings}");
     
 })->purpose('Display donation and reservation statistics');
