@@ -210,14 +210,22 @@
                                 <th>Best Before Date</th>
                                 <td>
                                     @php 
-                                        $daysLeft = now()->diffInDays($reservation->donation->best_before, false);
+                                        $bestBeforeDate = \Carbon\Carbon::parse($reservation->donation->best_before);
+                                        $today = \Carbon\Carbon::today();
+                                        $isCompleted = $reservation->donation->status === 'completed';
+                                        $isExpired = $bestBeforeDate->lt($today);
+                                        $isExpiringSoon = $bestBeforeDate->diffInDays($today, false) <= 1 && !$isExpired;
                                     @endphp
-                                    <span class="{{ $daysLeft <= 1 ? 'text-danger' : 'text-warning' }}">
-                                        {{ $reservation->donation->best_before->format('d M Y') }}
-                                        @if($daysLeft <= 1)
-                                            <small class="d-block">(Expiring Soon)</small>
+                                    <div>
+                                        <strong>{{ $bestBeforeDate->format('d M Y') }}</strong>
+                                        @if($isCompleted)
+                                            {{-- No expiry message for completed donations --}}
+                                        @elseif($isExpired)
+                                            <small class="d-block text-danger fw-bold">(Expired)</small>
+                                        @elseif($isExpiringSoon)
+                                            <small class="d-block text-warning fw-bold">(Expiring Soon)</small>
                                         @endif
-                                    </span>
+                                    </div>
                                 </td>
                             </tr>
                         </table>
@@ -262,7 +270,7 @@
                             </tr>
                             <tr>
                                 <th>Pickup Time</th>
-                                <td>{{ $reservation->pickup_time }}</td>
+                                <td>{{ $reservation->formatted_pickup_time }}</td>
                             </tr>
                             <tr>
                                 <th>Location</th>
