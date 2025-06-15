@@ -445,11 +445,6 @@
                                             <i class="fas fa-calendar-alt detail-icon"></i>
                                             <span><strong>Best Before:</strong> 
                                                 {{ $bestBeforeDate->format('d M Y') }}
-                                                @if($daysLeft <= 1)
-                                                    <span class="text-danger fw-bold">({{ $daysLeft == 0 ? 'Today' : $daysLeft . ' day left' }})</span>
-                                                @elseif($daysLeft <= 3)
-                                                    <span class="text-warning fw-bold">({{ $daysLeft }} days left)</span>
-                                                @endif
                                             </span>
                                         </div>
                                         <div class="detail-item">

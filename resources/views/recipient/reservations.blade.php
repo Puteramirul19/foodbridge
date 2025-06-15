@@ -268,7 +268,7 @@
                             <tr>
                                 <th>Food Description</th>
                                 <th>Donor</th>
-                                <th>Pickup Details</th>
+                                <th>Pickup Date</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
@@ -296,7 +296,7 @@
                                             <i class="fas fa-calendar me-2 text-primary"></i>
                                             {{ $reservation->pickup_date->format('d M Y') }}
                                             <small class="d-block text-muted mt-1">
-                                                <i class="fas fa-clock me-1"></i>{{ $reservation->pickup_time }}
+                                                <i class="fas fa-clock me-1"></i>{{ $reservation->formatted_pickup_time }}
                                             </small>
                                         </div>
                                     </td>

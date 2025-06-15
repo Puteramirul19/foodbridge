@@ -27,8 +27,31 @@ class Reservation extends Model
      */
     protected $casts = [
         'pickup_date' => 'date',
-        'pickup_time' => 'datetime:H:i',
+        // REMOVED: pickup_time cast - we'll handle this manually
     ];
+
+    /**
+     * Get formatted pickup time (e.g., "5:30 PM")
+     */
+    public function getFormattedPickupTimeAttribute()
+    {
+        if ($this->pickup_time) {
+            // Handle both time formats - whether it's stored as time or datetime
+            try {
+                // Try parsing as time first (HH:MM:SS or HH:MM)
+                if (preg_match('/^\d{1,2}:\d{2}(:\d{2})?$/', $this->pickup_time)) {
+                    return Carbon::createFromFormat('H:i:s', $this->pickup_time)->format('g:i A');
+                } else {
+                    // If it's a full datetime, extract just the time part
+                    return Carbon::parse($this->pickup_time)->format('g:i A');
+                }
+            } catch (\Exception $e) {
+                // Fallback: return as-is if parsing fails
+                return $this->pickup_time;
+            }
+        }
+        return null;
+    }
 
     /**
      * Relationship with Donation
