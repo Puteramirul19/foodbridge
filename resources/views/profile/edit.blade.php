@@ -214,8 +214,10 @@
                 <span class="fw-bold" style="color: #4A5568; font-size: 1.25rem;">FoodBridge</span>
             </a>
             <div class="ms-auto">
-                <a href="{{ route('profile.show') }}" class="btn btn-outline-primary me-2">
-                    <i class="fas fa-user me-2"></i>View Profile
+                <a href="{{ 
+                    auth()->user()->role === 'donor' ? route('donor.dashboard') : route('recipient.dashboard') 
+                }}" class="btn btn-outline-primary me-2">
+                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
                 </a>
                 <form method="POST" action="{{ route('logout') }}" class="d-inline">
                     @csrf
@@ -360,7 +362,7 @@
                         </div>
                     </div>
                     
-                    {{-- Submit Buttons --}}
+                    {{-- Submit Buttons - Only Cancel and Save --}}
                     <div class="d-flex justify-content-between mt-4">
                         <a href="{{ route('profile.show') }}" class="btn btn-cancel">
                             <i class="fas fa-times me-2"></i>Cancel

@@ -53,8 +53,7 @@ Route::middleware(['auth', 'active', 'role:donor'])->prefix('donor')->name('dono
     Route::post('/confirm-pickup/{reservation}', [ReservationController::class, 'confirmPickup'])->name('confirm-pickup');
     Route::post('/mark-not-collected/{reservation}', [ReservationController::class, 'markNotCollected'])->name('mark-not-collected');
     
-    // Donation Insights
-    Route::get('/insights', [DonorController::class, 'insights'])->name('insights');
+    // REMOVED: Donation Insights route completely
 
     // Existing Donation Routes
     Route::get('/donations', [DonationController::class, 'index'])->name('donations.index');

@@ -10,7 +10,7 @@ class DonorController extends Controller
 {
     /**
      * Show the donor dashboard with comprehensive donation insights
-     * UPDATED: Exclude expired donations from statistics
+     * UPDATED: Charts only show COMPLETED donations statistics
      */
     public function dashboard()
     {
@@ -51,9 +51,9 @@ class DonorController extends Controller
                    $donation->reservations->where('status', 'pending')->count() > 0;
         });
 
-        // Calculate donations by food category (EXCLUDE EXPIRED)
-        $activeDonations = $donations->whereNotIn('status', ['expired']);
-        $donationsByCategory = $activeDonations->groupBy('food_category')
+        // UPDATED: Calculate donations by food category (ONLY COMPLETED DONATIONS)
+        $completedDonations = $donations->where('status', 'completed');
+        $donationsByCategory = $completedDonations->groupBy('food_category')
             ->map(function ($group) {
                 return [
                     'count' => $group->count(),
@@ -61,8 +61,8 @@ class DonorController extends Controller
                 ];
             });
 
-        // Calculate monthly donation trend (EXCLUDE EXPIRED)
-        $monthlyDonations = $activeDonations->groupBy(function($donation) {
+        // UPDATED: Calculate monthly donation trend (ONLY COMPLETED DONATIONS)
+        $monthlyDonations = $completedDonations->groupBy(function($donation) {
             return Carbon::parse($donation->created_at)->format('M');
         })->map(function ($group) {
             return [
@@ -106,46 +106,5 @@ class DonorController extends Controller
             ->get();
 
         return view('donor.pending-pickups', compact('pendingPickups'));
-    }
-
-    /**
-     * Get detailed insights about donations
-     * UPDATED: Exclude expired donations from insights
-     */
-    public function insights()
-    {
-        $user = Auth::user();
-
-        // Get donations with eager loading (EXCLUDE EXPIRED for insights)
-        $allDonations = $user->donations;
-        $activeDonations = $allDonations->whereNotIn('status', ['expired']);
-
-        // Calculate insights based on active donations only
-        $insights = [
-            'averageServingsPerDonation' => $activeDonations->avg('estimated_servings') ?? 0,
-            'mostDonatedCategory' => $activeDonations->groupBy('food_category')
-                ->sortByDesc(function ($group) {
-                    return $group->count();
-                })
-                ->keys()
-                ->first(),
-            'totalImpact' => [
-                'foodSaved' => $activeDonations->sum('estimated_servings'),
-                'potentialWasteAvoided' => $activeDonations->sum('estimated_servings') * 0.25 // Estimate
-            ],
-            // Additional statistics
-            'totalDonations' => $allDonations->count(),
-            'activeDonations' => $activeDonations->count(),
-            'expiredDonations' => $allDonations->where('status', 'expired')->count(),
-            'completionRate' => $activeDonations->count() > 0 
-                ? round(($activeDonations->where('status', 'completed')->count() / $activeDonations->count()) * 100, 1)
-                : 0
-        ];
-
-        return view('donor.insights', [
-            'donations' => $activeDonations, // Pass only active donations for display
-            'allDonations' => $allDonations, // Pass all for reference if needed
-            'insights' => $insights
-        ]);
     }
 }

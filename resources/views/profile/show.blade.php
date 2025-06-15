@@ -332,15 +332,12 @@
             </div>
         </div>
 
-        {{-- Action Buttons --}}
-        <div class="d-flex justify-content-between">
+        {{-- Action Button - Only Back to Dashboard --}}
+        <div class="text-center">
             <a href="{{ 
                 auth()->user()->role === 'donor' ? route('donor.dashboard') : route('recipient.dashboard') 
             }}" class="btn btn-back">
                 <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
-            </a>
-            <a href="{{ route('profile.edit') }}" class="btn btn-edit">
-                <i class="fas fa-edit me-2"></i>Edit Profile
             </a>
         </div>
     </div>
