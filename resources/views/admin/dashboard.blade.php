@@ -119,14 +119,10 @@
     {{-- Navigation --}}
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
         <div class="container-fluid">
-            <a class="navbar-brand d-flex align-items-center" href="{{ route('home') }}">
-                <img src="{{ asset('foodbridge-icon.svg') }}" alt="FoodBridge Logo" style="height: 40px; margin-right: 10px;">
-                <span class="fw-bold" style="color: #2575fc;">FoodBridge Admin</span>
+            <a class="navbar-brand d-flex align-items-center" href="{{ route('donor.dashboard') }}">
+                <img src="{{ asset('icon.png') }}" alt="FoodBridge Logo" height="30" class="me-2">
+                <span class="fw-bold" style="color: #4A5568; font-size: 1.25rem;">FoodBridge</span>
             </a>
-            <div class="navbar-nav ms-auto">
-                <a href="{{ route('admin.users.index') }}" class="btn btn-outline-primary me-2">
-                    <i class="fas fa-users-cog"></i> Manage Users
-                </a>
                 <form method="POST" action="{{ route('logout') }}" class="d-inline">
                     @csrf
                     <button type="submit" class="btn btn-outline-danger">

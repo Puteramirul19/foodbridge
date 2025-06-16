@@ -155,7 +155,6 @@
         <h1>{{ $title }}</h1>
         <div class="subtitle">FoodBridge Platform Analytics Report</div>
         <div class="generation-info">
-            <strong>Generated:</strong> {{ now()->format('F d, Y \a\t g:i A') }} | 
             <strong>Total Records:</strong> {{ $data->count() }}
         </div>
     </div>
@@ -218,16 +217,6 @@
                         <div class="summary-label">Active Rate</div>
                     </div>
                 </div>
-            </div>
-
-            <div class="insights-section">
-                <h4>Key Insights</h4>
-                <ul class="insights-list">
-                    <li>Total platform users: {{ $data->count() }} ({{ $data->where('role', 'donor')->count() }} donors, {{ $data->where('role', 'recipient')->count() }} recipients)</li>
-                    <li>User activity rate: {{ $data->count() > 0 ? round(($data->where('is_active', true)->count() / $data->count()) * 100, 1) : 0 }}% of users are currently active</li>
-                    <li>Most recent registration: {{ $data->sortByDesc('created_at')->first()->created_at->format('F d, Y') ?? 'No registrations' }}</li>
-                    <li>Donor to recipient ratio: {{ $data->where('role', 'recipient')->count() > 0 ? round($data->where('role', 'donor')->count() / $data->where('role', 'recipient')->count(), 2) : 'N/A' }}:1</li>
-                </ul>
             </div>
             @break
 
@@ -320,7 +309,6 @@
                         <th>Status</th>
                         <th>Total Donations</th>
                         <th>Total Servings</th>
-                        <th>Avg Servings/Donation</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -337,7 +325,6 @@
                             </td>
                             <td>{{ $item->donations->count() }}</td>
                             <td>{{ number_format($item->donations->sum('estimated_servings')) }}</td>
-                            <td>{{ $item->donations->count() > 0 ? round($item->donations->sum('estimated_servings') / $item->donations->count(), 1) : 0 }}</td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -362,26 +349,7 @@
                         <div class="summary-number">{{ number_format($data->sum(function($donor) { return $donor->donations->sum('estimated_servings'); })) }}</div>
                         <div class="summary-label">Total Servings</div>
                     </div>
-                    <div class="summary-item">
-                        <div class="summary-number">{{ $data->count() > 0 ? round($data->sum(function($donor) { return $donor->donations->count(); }) / $data->count(), 1) : 0 }}</div>
-                        <div class="summary-label">Avg Donations/Donor</div>
-                    </div>
                 </div>
-            </div>
-
-            <div class="insights-section">
-                <h4>Key Insights</h4>
-                @php
-                    $activeDonors = $data->filter(function($donor) { return $donor->donations->count() > 0; });
-                    $topDonor = $data->sortByDesc(function($donor) { return $donor->donations->count(); })->first();
-                    $topServingsDonor = $data->sortByDesc(function($donor) { return $donor->donations->sum('estimated_servings'); })->first();
-                @endphp
-                <ul class="insights-list">
-                    <li>Active donor rate: {{ $data->count() > 0 ? round(($activeDonors->count() / $data->count()) * 100, 1) : 0 }}% of donors have made donations</li>
-                    <li>Most active donor: {{ $topDonor->name ?? 'None' }} ({{ $topDonor->donations->count() ?? 0 }} donations)</li>
-                    <li>Highest servings contributor: {{ $topServingsDonor->name ?? 'None' }} ({{ number_format($topServingsDonor->donations->sum('estimated_servings') ?? 0) }} servings)</li>
-                    <li>Average donations per active donor: {{ $activeDonors->count() > 0 ? round($activeDonors->sum(function($donor) { return $donor->donations->count(); }) / $activeDonors->count(), 1) : 0 }}</li>
-                </ul>
             </div>
             @break
 
@@ -395,9 +363,9 @@
                         <th>Email</th>
                         <th>Phone</th>
                         <th>Status</th>
-                        <th>Total Reservations</th>
-                        <th>Completed Reservations</th>
-                        <th>Servings Received</th>
+                        <th>Total Food Requests</th>
+                        <th>Completed Requests</th>
+                        <th>Food Received</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -414,17 +382,17 @@
                             </td>
                             <td>{{ $item->reservations->count() }}</td>
                             <td>{{ $item->reservations->filter(function($reservation) { return $reservation->donation && $reservation->donation->status == 'completed'; })->count() }}</td>
-                            <td>{{ number_format($item->reservations->filter(function($reservation) { return $reservation->donation && $reservation->donation->status == 'completed'; })->sum(function($reservation) { return $reservation->donation->estimated_servings; })) }}</td>
+                            <td>{{ number_format($item->reservations->filter(function($reservation) { return $reservation->donation && $reservation->donation->status == 'completed'; })->sum(function($reservation) { return $reservation->donation->estimated_servings; })) }} servings</td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
             
             <div class="summary">
-                <h3>Recipient Engagement Summary</h3>
+                <h3>Food Request Summary</h3>
                 @php
-                    $totalReservations = $data->sum(function($recipient) { return $recipient->reservations->count(); });
-                    $completedReservations = $data->sum(function($recipient) { 
+                    $totalRequests = $data->sum(function($recipient) { return $recipient->reservations->count(); });
+                    $completedRequests = $data->sum(function($recipient) { 
                         return $recipient->reservations->filter(function($reservation) { 
                             return $reservation->donation && $reservation->donation->status == 'completed'; 
                         })->count(); 
@@ -447,42 +415,21 @@
                         <div class="summary-label">Active Recipients</div>
                     </div>
                     <div class="summary-item">
-                        <div class="summary-number">{{ $totalReservations }}</div>
-                        <div class="summary-label">Total Reservations</div>
+                        <div class="summary-number">{{ $totalRequests }}</div>
+                        <div class="summary-label">Total Food Requests</div>
                     </div>
                     <div class="summary-item">
-                        <div class="summary-number">{{ $completedReservations }}</div>
+                        <div class="summary-number">{{ $completedRequests }}</div>
                         <div class="summary-label">Completed</div>
                     </div>
-                    <div class="summary-item">
-                        <div class="summary-number">{{ $data->count() > 0 ? round($totalReservations / $data->count(), 1) : 0 }}</div>
-                        <div class="summary-label">Avg Reservations</div>
-                    </div>
                 </div>
-            </div>
-
-            <div class="insights-section">
-                <h4>Key Insights</h4>
-                @php
-                    $activeRecipients = $data->filter(function($recipient) { return $recipient->reservations->count() > 0; });
-                    $topRecipient = $data->sortByDesc(function($recipient) { return $recipient->reservations->count(); })->first();
-                    $completionRate = $totalReservations > 0 ? round(($completedReservations / $totalReservations) * 100, 1) : 0;
-                @endphp
-                <ul class="insights-list">
-                    <li>Active recipient rate: {{ $data->count() > 0 ? round(($activeRecipients->count() / $data->count()) * 100, 1) : 0 }}% of recipients have made reservations</li>
-                    <li>Reservation completion rate: {{ $completionRate }}%</li>
-                    <li>Most active recipient: {{ $topRecipient->name ?? 'None' }} ({{ $topRecipient->reservations->count() ?? 0 }} reservations)</li>
-                    <li>Total servings received: {{ number_format($totalServingsReceived) }} servings across all completed reservations</li>
-                    <li>Average servings per completed reservation: {{ $completedReservations > 0 ? round($totalServingsReceived / $completedReservations, 1) : 0 }}</li>
-                </ul>
             </div>
             @break
     @endswitch
 
     <div class="footer">
         <p>
-            <strong>FoodBridge Platform Report</strong> | 
-            Generated on {{ now()->format('F d, Y \a\t g:i A') }} | 
+            © 2025 FoodBridge. All rights reserved. | Building bridges between surplus and need.
         </p>
     </div>
 </body>

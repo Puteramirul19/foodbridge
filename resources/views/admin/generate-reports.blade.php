@@ -138,9 +138,9 @@
     {{-- Navigation --}}
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
         <div class="container-fluid">
-            <a class="navbar-brand d-flex align-items-center" href="{{ route('home') }}">
-                <img src="{{ asset('foodbridge-icon.svg') }}" alt="FoodBridge Logo" style="height: 40px; margin-right: 10px;">
-                <span class="fw-bold" style="color: #2575fc;">FoodBridge</span>
+            <a class="navbar-brand d-flex align-items-center" href="{{ route('admin.dashboard') }}">
+                <img src="{{ asset('icon.png') }}" alt="FoodBridge Logo" height="30" class="me-2">
+                <span class="fw-bold" style="color: #4A5568; font-size: 1.25rem;">FoodBridge</span>
             </a>
             <div class="navbar-nav ms-auto">
                 <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-primary me-2">
@@ -162,9 +162,6 @@
                 <h2 class="mb-2">
                     <i class="fas fa-file-alt me-3"></i>Generate Reports
                 </h2>
-                <span class="format-badge">
-                    <i class="fas fa-file-pdf me-1"></i>PDF Format Only
-                </span>
                 <p class="mt-3 mb-0 opacity-75">
                     Generate comprehensive reports for platform analysis
                 </p>
@@ -223,18 +220,7 @@
                                 </div>
                             </div>
 
-                            <div class="report-option" onclick="selectReport('donations')">
-                                <input type="radio" name="report_type" value="donations" id="donations" required>
-                                <div class="report-icon">
-                                    <i class="fas fa-utensils"></i>
-                                </div>
-                                <div class="report-info">
-                                    <div class="report-title">Food Donations Summary</div>
-                                    <div class="report-description">
-                                        Detailed breakdown of all food donations, categories, servings, and current status
-                                    </div>
-                                </div>
-                            </div>
+
 
                             <div class="report-option" onclick="selectReport('donors')">
                                 <input type="radio" name="report_type" value="donors" id="donors" required>
@@ -271,9 +257,6 @@
                             <h5 class="mb-3">
                                 <i class="fas fa-calendar-range me-2"></i>Date Range (Optional)
                             </h5>
-                            <p class="text-muted mb-3">
-                                Leave blank to generate a complete historical report, or specify a date range for focused analysis.
-                            </p>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label for="start_date" class="form-label">
@@ -306,7 +289,6 @@
             <div class="alert alert-info" style="background: rgba(255, 255, 255, 0.9);">
                 <i class="fas fa-info-circle me-2"></i>
                 <strong>Report Information:</strong> All reports are generated in PDF format for easy sharing and printing. 
-                Reports include comprehensive data analysis and visual summaries.
             </div>
         </div>
     </div>
