@@ -104,10 +104,6 @@
             font-weight: bold;
             text-transform: uppercase;
         }
-        .status-available { background-color: #d4edda; color: #155724; }
-        .status-reserved { background-color: #fff3cd; color: #856404; }
-        .status-completed { background-color: #d1ecf1; color: #0c5460; }
-        .status-expired { background-color: #f8d7da; color: #721c24; }
         .status-active { background-color: #d4edda; color: #155724; }
         .status-inactive { background-color: #f8d7da; color: #721c24; }
         .section-title {
@@ -117,13 +113,6 @@
             margin: 25px 0 15px 0;
             padding-bottom: 5px;
             border-bottom: 2px solid #e9ecef;
-        }
-        .food-category {
-            font-size: 11px;
-            background-color: #e7f3ff;
-            padding: 2px 6px;
-            border-radius: 4px;
-            color: #2575fc;
         }
         .page-break {
             page-break-before: always;
@@ -217,83 +206,6 @@
                         <div class="summary-label">Active Rate</div>
                     </div>
                 </div>
-            </div>
-            @break
-
-        @case('donations')
-            <div class="section-title">Food Donations Analysis</div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Donor</th>
-                        <th>Food Category</th>
-                        <th>Servings</th>
-                        <th>Status</th>
-                        <th>Date Created</th>
-                        <th>Expires</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($data as $item)
-                        <tr>
-                            <td>{{ $item->id }}</td>
-                            <td>{{ $item->donor->name }}</td>
-                            <td>
-                                <span class="food-category">
-                                    {{ str_replace(['🥕', '🍞', '🍲', '🥫', '🥛', '📦'], '', \App\Http\Controllers\DonationController::getFormattedFoodCategory($item->food_category)) }}
-                                </span>
-                            </td>
-                            <td>{{ number_format($item->estimated_servings) }}</td>
-                            <td>
-                                <span class="status-badge status-{{ $item->status }}">
-                                    {{ ucfirst($item->status) }}
-                                </span>
-                            </td>
-                            <td>{{ $item->created_at->format('M d, Y') }}</td>
-                            <td>{{ $item->expires_at ? $item->expires_at->format('M d, Y') : 'No expiry' }}</td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-            
-            <div class="summary">
-                <h3>Donation Statistics Summary</h3>
-                <div class="summary-grid">
-                    <div class="summary-item">
-                        <div class="summary-number">{{ $data->count() }}</div>
-                        <div class="summary-label">Total Donations</div>
-                    </div>
-                    <div class="summary-item">
-                        <div class="summary-number">{{ $data->where('status', 'available')->count() }}</div>
-                        <div class="summary-label">Available</div>
-                    </div>
-                    <div class="summary-item">
-                        <div class="summary-number">{{ $data->where('status', 'reserved')->count() }}</div>
-                        <div class="summary-label">Reserved</div>
-                    </div>
-                    <div class="summary-item">
-                        <div class="summary-number">{{ $data->where('status', 'completed')->count() }}</div>
-                        <div class="summary-label">Completed</div>
-                    </div>
-                    <div class="summary-item">
-                        <div class="summary-number">{{ number_format($data->sum('estimated_servings')) }}</div>
-                        <div class="summary-label">Total Servings</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="insights-section">
-                <h4>Key Insights</h4>
-                <ul class="insights-list">
-                    <li>Total food donations: {{ $data->count() }} donations providing {{ number_format($data->sum('estimated_servings')) }} servings</li>
-                    <li>Completion rate: {{ $data->count() > 0 ? round(($data->where('status', 'completed')->count() / $data->count()) * 100, 1) : 0 }}%</li>
-                    <li>Average servings per donation: {{ $data->count() > 0 ? round($data->sum('estimated_servings') / $data->count(), 1) : 0 }}</li>
-                    <li>Most popular food category: {{ $data->groupBy('food_category')->map->count()->sortDesc()->keys()->first() ?? 'None' }}</li>
-                    @if($data->where('status', 'expired')->count() > 0)
-                    <li>Expired donations: {{ $data->where('status', 'expired')->count() }} ({{ round(($data->where('status', 'expired')->count() / $data->count()) * 100, 1) }}%)</li>
-                    @endif
-                </ul>
             </div>
             @break
 

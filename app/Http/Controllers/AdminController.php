@@ -190,15 +190,15 @@ class AdminController extends Controller
 
     /**
      * Generate reports (PDF ONLY - CSV removed)
-     * UPDATED: Removed CSV option, only PDF format
+     * UPDATED: Removed CSV option, only PDF format. REMOVED DONATIONS REPORT TYPE.
      */
     public function generateReports(Request $request)
     {
-        // Extended validation - removed CSV format option
+        // Extended validation - removed CSV format option and donations report type
         $validator = Validator::make($request->all(), [
             'report_type' => [
                 'required', 
-                Rule::in(['users', 'donations', 'donors', 'recipients'])
+                Rule::in(['users', 'donors', 'recipients']) // REMOVED 'donations'
             ],
             'format' => [
                 'required', 
@@ -229,13 +229,6 @@ class AdminController extends Controller
             switch($request->report_type) {
                 case 'users':
                     $query = User::query();
-                    break;
-                case 'donations':
-                    $query = Donation::with('donor');
-                    // Handle expired donations based on include_expired option
-                    if (!$request->include_expired) {
-                        $query->whereNotIn('status', ['expired']);
-                    }
                     break;
                 case 'donors':
                     $query = User::where('role', 'donor')->with('donations');

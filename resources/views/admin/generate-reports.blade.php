@@ -369,7 +369,7 @@
                 <form action="{{ route('admin.generate-reports') }}" method="POST">
                     @csrf
                     
-                    {{-- Report Type Selection --}}
+                    {{-- Report Type Selection - REMOVED DONATIONS OPTION --}}
                     <div class="mb-4">
                         <label class="form-label">
                             <i class="fas fa-list-alt"></i>Select Report Type
@@ -384,22 +384,7 @@
                                 <div class="report-details">
                                     <div class="report-title">Platform Users Overview</div>
                                     <div class="report-description">
-                                        Complete list of all registered users including donors, recipients, and their registration details
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="report-option" onclick="selectReport('donations')">
-                            <input type="radio" name="report_type" value="donations" id="donations" required>
-                            <div class="report-info">
-                                <div class="report-icon">
-                                    <i class="fas fa-donate"></i>
-                                </div>
-                                <div class="report-details">
-                                    <div class="report-title">Food Donations Analysis</div>
-                                    <div class="report-description">
-                                        Detailed analysis of all food donations including status, categories, and impact metrics
+                                        Complete list of all registered users
                                     </div>
                                 </div>
                             </div>
@@ -414,7 +399,7 @@
                                 <div class="report-details">
                                     <div class="report-title">Donor Contribution Analysis</div>
                                     <div class="report-description">
-                                        Comprehensive analysis of donor activities, total contributions, and impact metrics per donor
+                                        Analysis of donor activities and contributions
                                     </div>
                                 </div>
                             </div>
@@ -429,7 +414,7 @@
                                 <div class="report-details">
                                     <div class="report-title">Food Recipients Activity Report</div>
                                     <div class="report-description">
-                                        Overview of recipient engagement, reservation patterns, and food assistance received
+                                        Overview of recipient engagement and food assistance
                                     </div>
                                 </div>
                             </div>
