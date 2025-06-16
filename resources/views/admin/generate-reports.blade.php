@@ -3,58 +3,134 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generate Reports - FoodBridge</title>
-    
-    {{-- Bootstrap CSS --}}
+    <title>Generate Reports - FoodBridge Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    {{-- Font Awesome --}}
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         body {
-            background-color: #F2EDE4;
-            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         .reports-container {
-            max-width: 700px;
-            margin: 50px auto;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
         }
         .card {
             border: none;
-            border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            overflow: hidden;
         }
         .card-header {
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            background: linear-gradient(135deg, #2575fc 0%, #6a11cb 100%);
             color: white;
-            border-top-left-radius: 15px;
-            border-top-right-radius: 15px;
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            padding: 30px;
+            text-align: center;
+            border: none;
+        }
+        .card-header h2 {
+            margin: 0;
+            font-weight: 600;
+        }
+        .card-body {
+            padding: 0;
+        }
+        .form-section {
+            padding: 40px;
+        }
+        .form-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
         }
         .form-select, .form-control {
             border-radius: 10px;
-            padding: 12px;
+            border: 2px solid #e9ecef;
+            padding: 12px 15px;
+            transition: all 0.3s;
         }
-        .btn-primary {
-            background-color: #2575fc;
-            border: none;
-            transition: all 0.3s ease;
+        .form-select:focus, .form-control:focus {
+            border-color: #2575fc;
+            box-shadow: 0 0 0 0.2rem rgba(37, 117, 252, 0.25);
         }
-        .btn-primary:hover {
-            background-color: #1a5adf;
-            transform: translateY(-2px);
+        .report-option {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            margin: 10px 0;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
         }
-        .date-info-btn {
-            margin-left: 10px;
+        .report-option:hover {
+            border-color: #2575fc;
+            background-color: #f8f9ff;
         }
-        .report-type-description {
+        .report-option.selected {
+            border-color: #2575fc;
+            background-color: #f0f4ff;
+        }
+        .report-option input[type="radio"] {
+            margin-right: 15px;
+            transform: scale(1.2);
+        }
+        .report-info {
+            flex: 1;
+        }
+        .report-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .report-description {
             font-size: 0.9rem;
             color: #6c757d;
-            margin-top: 5px;
+            margin: 0;
+        }
+        .report-icon {
+            font-size: 2rem;
+            color: #2575fc;
+            margin-right: 20px;
+        }
+        .btn-generate {
+            background: linear-gradient(135deg, #2575fc 0%, #6a11cb 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 15px 40px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+            width: 100%;
+        }
+        .btn-generate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(37, 117, 252, 0.3);
+        }
+        .date-inputs {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+        .alert {
+            border-radius: 10px;
+            border: none;
+        }
+        .format-badge {
+            background: #28a745;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .navbar {
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(10px);
         }
     </style>
 </head>
@@ -62,11 +138,11 @@
     {{-- Navigation --}}
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
         <div class="container-fluid">
-            <a class="navbar-brand d-flex align-items-center" href="{{ route('admin.dashboard') }}">
-                <img src="{{ asset('icon.png') }}" alt="FoodBridge Logo" height="40" class="me-2">
-                <span class="fw-bold" style="color: #4A5568; font-size: 1.25rem;">FoodBridge</span>
+            <a class="navbar-brand d-flex align-items-center" href="{{ route('home') }}">
+                <img src="{{ asset('foodbridge-icon.svg') }}" alt="FoodBridge Logo" style="height: 40px; margin-right: 10px;">
+                <span class="fw-bold" style="color: #2575fc;">FoodBridge</span>
             </a>
-            <div class="ms-auto">
+            <div class="navbar-nav ms-auto">
                 <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-primary me-2">
                     <i class="fas fa-tachometer-alt me-2"></i>Dashboard
                 </a>
@@ -83,152 +159,154 @@
     <div class="container reports-container">
         <div class="card">
             <div class="card-header">
-                <h2 class="mb-0">
-                    <i class="fas fa-file-alt me-2"></i>Generate Reports
+                <h2 class="mb-2">
+                    <i class="fas fa-file-alt me-3"></i>Generate Reports
                 </h2>
-                <span class="badge bg-light text-dark">
-                    <i class="fas fa-calendar-alt me-2"></i>
-                    {{ now()->format('d M Y') }}
+                <span class="format-badge">
+                    <i class="fas fa-file-pdf me-1"></i>PDF Format Only
                 </span>
+                <p class="mt-3 mb-0 opacity-75">
+                    Generate comprehensive reports for platform analysis
+                </p>
             </div>
             
-            <div class="card-body p-4">
-                {{-- Error Handling --}}
-                @if(session('error'))
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        {{ session('error') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                @endif
+            <div class="card-body">
+                <div class="form-section">
+                    {{-- Error Handling --}}
+                    @if(session('error'))
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            {{ session('error') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
 
-                @if(session('warning'))
-                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                        <i class="fas fa-info-circle me-2"></i>
-                        {{ session('warning') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                @endif
+                    @if(session('warning'))
+                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                            <i class="fas fa-info-circle me-2"></i>
+                            {{ session('warning') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
 
-                @if($errors->any())
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <i class="fas fa-times-circle me-2"></i>
-                        <ul class="mb-0">
-                            @foreach($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                @endif
+                    @if($errors->any())
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-times-circle me-2"></i>
+                            <ul class="mb-0">
+                                @foreach($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
 
-                <form action="{{ route('admin.generate-reports') }}" method="POST">
-                    @csrf
-                    
-                    <div class="mb-3">
-                        <label for="report_type" class="form-label">
-                            <i class="fas fa-chart-pie me-2"></i>Report Type
-                        </label>
-                        <select name="report_type" id="report_type" class="form-select" required>
-                            <option value="">Select Report Type</option>
-                            <option value="users">
-                                Users Overview
-                                <small class="report-type-description">
-                                    All registered platform users by role
-                                </small>
-                            </option>
-                            <option value="donations">
-                                Food Donations Summary
-                                <small class="report-type-description">
-                                    Details of all food donations made
-                                </small>
-                            </option>
-                            <option value="donors">
-                                Donor Contribution Report
-                                <small class="report-type-description">
-                                    Breakdown of donor activities and donations
-                                </small>
-                            </option>
-                            <option value="recipients">
-                                Food Recipients Report
-                                <small class="report-type-description">
-                                    Overview of food reservation activities
-                                </small>
-                            </option>
-                        </select>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="format" class="form-label">
-                            <i class="fas fa-file-export me-2"></i>Export Format
-                        </label>
-                        <select name="format" id="format" class="form-select" required>
-                            <option value="">Select Format</option>
-                            <option value="csv">CSV (Spreadsheet)</option>
-                            <option value="pdf">PDF (Printable Document)</option>
-                        </select>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="start_date" class="form-label">
-                                <i class="fas fa-calendar-alt me-2"></i>Start Date
+                    <form action="{{ route('admin.generate-reports') }}" method="POST">
+                        @csrf
+                        
+                        {{-- Report Type Selection --}}
+                        <div class="mb-4">
+                            <label class="form-label">
+                                <i class="fas fa-chart-pie me-2"></i>Select Report Type
                             </label>
-                            <div class="input-group">
-                                <input type="date" name="start_date" id="start_date" class="form-control">
-                                <button type="button" class="btn btn-outline-secondary date-info-btn" 
-                                        data-bs-toggle="modal" data-bs-target="#dateRangeModal">
-                                    <i class="fas fa-question-circle"></i>
-                                </button>
+                            
+                            <div class="report-option" onclick="selectReport('users')">
+                                <input type="radio" name="report_type" value="users" id="users" required>
+                                <div class="report-icon">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <div class="report-info">
+                                    <div class="report-title">Platform Users Overview</div>
+                                    <div class="report-description">
+                                        Complete list of all registered users including donors, recipients, and their registration details
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="report-option" onclick="selectReport('donations')">
+                                <input type="radio" name="report_type" value="donations" id="donations" required>
+                                <div class="report-icon">
+                                    <i class="fas fa-utensils"></i>
+                                </div>
+                                <div class="report-info">
+                                    <div class="report-title">Food Donations Summary</div>
+                                    <div class="report-description">
+                                        Detailed breakdown of all food donations, categories, servings, and current status
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="report-option" onclick="selectReport('donors')">
+                                <input type="radio" name="report_type" value="donors" id="donors" required>
+                                <div class="report-icon">
+                                    <i class="fas fa-hand-holding-heart"></i>
+                                </div>
+                                <div class="report-info">
+                                    <div class="report-title">Donor Contribution Analysis</div>
+                                    <div class="report-description">
+                                        Comprehensive analysis of donor activities, total contributions, and impact metrics per donor
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="report-option" onclick="selectReport('recipients')">
+                                <input type="radio" name="report_type" value="recipients" id="recipients" required>
+                                <div class="report-icon">
+                                    <i class="fas fa-people-carry"></i>
+                                </div>
+                                <div class="report-info">
+                                    <div class="report-title">Food Recipients Activity Report</div>
+                                    <div class="report-description">
+                                        Overview of recipient engagement, reservation patterns, and food assistance received
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="end_date" class="form-label">
-                                <i class="fas fa-calendar-alt me-2"></i>End Date
-                            </label>
-                            <div class="input-group">
-                                <input type="date" name="end_date" id="end_date" class="form-control">
-                                <button type="button" class="btn btn-outline-secondary date-info-btn" 
-                                        data-bs-toggle="modal" data-bs-target="#dateRangeModal">
-                                    <i class="fas fa-question-circle"></i>
-                                </button>
+
+                        {{-- Hidden Format Field (PDF Only) --}}
+                        <input type="hidden" name="format" value="pdf">
+                        
+                        {{-- Date Range Selection --}}
+                        <div class="date-inputs">
+                            <h5 class="mb-3">
+                                <i class="fas fa-calendar-range me-2"></i>Date Range (Optional)
+                            </h5>
+                            <p class="text-muted mb-3">
+                                Leave blank to generate a complete historical report, or specify a date range for focused analysis.
+                            </p>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="start_date" class="form-label">
+                                        <i class="fas fa-calendar-alt me-2"></i>Start Date
+                                    </label>
+                                    <input type="date" name="start_date" id="start_date" class="form-control">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="end_date" class="form-label">
+                                        <i class="fas fa-calendar-alt me-2"></i>End Date
+                                    </label>
+                                    <input type="date" name="end_date" id="end_date" class="form-control">
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-primary btn-lg">
-                            <i class="fas fa-download me-2"></i>Generate Report
-                        </button>
-                    </div>
-                </form>
+                        
+                        {{-- Generate Button --}}
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-generate">
+                                <i class="fas fa-file-pdf me-2"></i>Generate PDF Report
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
-    </div>
 
-    {{-- Date Range Info Modal --}}
-    <div class="modal fade" id="dateRangeModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">
-                        <i class="fas fa-info-circle text-primary me-2"></i>Date Range Details
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <h6>Date Range Guidance</h6>
-                    <ul>
-                        <li>Optional fields for filtering reports</li>
-                        <li>Start date must be before or equal to end date</li>
-                        <li>Dates cannot be in the future</li>
-                        <li>Leave blank to generate a full historical report</li>
-                    </ul>
-                    <div class="alert alert-info">
-                        <i class="fas fa-lightbulb me-2"></i>
-                        Pro Tip: Use date ranges to analyze specific time periods or track donation trends
-                    </div>
-                </div>
+        {{-- Additional Information --}}
+        <div class="text-center mt-4">
+            <div class="alert alert-info" style="background: rgba(255, 255, 255, 0.9);">
+                <i class="fas fa-info-circle me-2"></i>
+                <strong>Report Information:</strong> All reports are generated in PDF format for easy sharing and printing. 
+                Reports include comprehensive data analysis and visual summaries.
             </div>
         </div>
     </div>
@@ -236,7 +314,7 @@
     {{-- Bootstrap JS --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    {{-- Date Validation Script --}}
+    {{-- Custom JavaScript --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const startDateInput = document.getElementById('start_date');
@@ -260,6 +338,29 @@
                     alert('Start date cannot be after end date');
                     this.value = '';
                 }
+            });
+        });
+
+        function selectReport(reportType) {
+            // Remove selected class from all options
+            document.querySelectorAll('.report-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // Add selected class to clicked option
+            event.currentTarget.classList.add('selected');
+            
+            // Check the radio button
+            document.getElementById(reportType).checked = true;
+        }
+
+        // Add click event listeners to radio buttons to update visual selection
+        document.querySelectorAll('input[name="report_type"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                document.querySelectorAll('.report-option').forEach(option => {
+                    option.classList.remove('selected');
+                });
+                this.closest('.report-option').classList.add('selected');
             });
         });
     </script>
