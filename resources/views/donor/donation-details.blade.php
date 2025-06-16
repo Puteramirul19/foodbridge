@@ -385,11 +385,10 @@
                                 </td>
                             </tr>
                             <tr>
-                                <th>Donation Type</th>
+                                <th>Collection Method</th>
                                 <td>
-                                    <span class="type-badge">
-                                        <i class="fas fa-{{ $donation->donation_type == 'direct' ? 'handshake' : 'truck' }} me-1"></i>
-                                        {{ ucfirst($donation->donation_type) }}
+                                    <span class="badge bg-info">
+                                        {{ $donation->donation_type == 'direct' ? 'Self-Pickup' : 'Home Delivery' }}               
                                     </span>
                                 </td>
                             </tr>

@@ -116,12 +116,7 @@
                     id="phone_number" 
                     name="phone_number" 
                     required 
-                    value="{{ old('phone_number') }}"
-                    placeholder="012-345-6789">
-                <div class="phone-hint">
-                    <i class="fas fa-info-circle"></i>
-                    Malaysian format (e.g., 012-345-6789). Country code +6 will be added automatically.
-                </div>
+                    value="{{ old('phone_number') }}">
                 @error('phone_number')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
@@ -146,8 +141,8 @@
                 <label for="role" class="form-label">Register as</label>
                 <select class="form-select @error('role') is-invalid @enderror" id="role" name="role" required>
                     <option value="">Choose your role</option>
-                    <option value="donor" {{ old('role') === 'donor' ? 'selected' : '' }}>Donor (I want to donate food)</option>
-                    <option value="recipient" {{ old('role') === 'recipient' ? 'selected' : '' }}>Recipient (I need food)</option>
+                    <option value="donor" {{ old('role') === 'donor' ? 'selected' : '' }}>Donor</option>
+                    <option value="recipient" {{ old('role') === 'recipient' ? 'selected' : '' }}>Recipient</option>
                 </select>
                 @error('role')
                     <div class="invalid-feedback">{{ $message }}</div>

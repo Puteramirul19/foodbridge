@@ -309,13 +309,13 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="donation_type" class="form-label">
-                                    <i class="fas fa-truck"></i>Donation Type
+                                    <i class="fas fa-truck"></i>Food Collection Method
                                 </label>
                                 <select class="form-select @error('donation_type') is-invalid @enderror" 
                                         id="donation_type" name="donation_type" required>
-                                    <option value="">Select Donation Method</option>
-                                    <option value="direct">Direct Pickup</option>
-                                    <option value="dropoff">Drop-off at Location</option>
+                                    <option value="">Select Collection Method</option>
+                                    <option value="direct">Self-Pickup</option>
+                                    <option value="dropoff">Home Delivery (within your area)</option>
                                 </select>
                                 @error('donation_type')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -327,13 +327,14 @@
 
                         <div class="mb-3">
                             <label for="pickup_location" class="form-label">
-                                <i class="fas fa-location-dot"></i>Pickup/Drop-off Location
+                                <i class="fas fa-location-dot"></i>Location Details
                             </label>
                             <input type="text" 
                                    class="form-control @error('pickup_location') is-invalid @enderror" 
                                    id="pickup_location" 
                                    name="pickup_location" required 
                                    placeholder="e.g. Masjid Uniten, Kajang">
+                                <div class="form-help">Provide specific location or general area for food collection</div>
                             @error('pickup_location')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror

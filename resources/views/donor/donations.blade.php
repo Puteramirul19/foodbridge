@@ -387,7 +387,7 @@
                                 </div>
                                 <div class="detail-item">
                                     <i class="fas fa-truck detail-icon"></i>
-                                    <span><strong>Type:</strong> 
+                                    <span><strong>Collection Method:</strong> 
                                         <span class="badge bg-info">{{ ucfirst($donation->donation_type) }}</span>
                                     </span>
                                 </div>

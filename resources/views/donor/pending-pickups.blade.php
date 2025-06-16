@@ -408,7 +408,11 @@
                                     </div>
                                     <div class="detail-item">
                                         <i class="fas fa-truck detail-icon"></i>
-                                        <span><strong>Type:</strong> {{ ucfirst($donation->donation_type) }}</span>
+                                        <span><strong>Collection Method:</strong> 
+                                            <span class="badge bg-info">
+                                                {{ $donation->donation_type == 'direct' ? 'Self-Pickup' : 'Home Delivery (within my area)' }}
+                                            </span>
+                                        </span>
                                     </div>
                                 </div>
 

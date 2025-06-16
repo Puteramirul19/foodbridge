@@ -267,10 +267,10 @@
                                 <td>{{ $reservation->donation->donor->name }}</td>
                             </tr>
                             <tr>
-                                <th>Pickup Type</th>
+                                <th>Collection Method</th>
                                 <td>
                                     <span class="badge" style="background-color: #667eea; color: white;">
-                                        {{ ucfirst($reservation->donation->donation_type) }}
+                                        {{ $reservation->donation->donation_type == 'direct' ? 'Self-Pickup' : 'Home Delivery' }}
                                     </span>
                                 </td>
                             </tr>

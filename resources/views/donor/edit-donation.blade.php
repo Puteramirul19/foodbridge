@@ -379,13 +379,13 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="donation_type" class="form-label">
-                                    <i class="fas fa-truck"></i>Donation Type
+                                    <i class="fas fa-truck"></i>Food Collection Method
                                 </label>
                                 <select class="form-select @error('donation_type') is-invalid @enderror" 
                                         id="donation_type" name="donation_type" required>
-                                    <option value="">Select Donation Method</option>
-                                    <option value="direct" {{ $donation->donation_type == 'direct' ? 'selected' : '' }}>Direct Pickup</option>
-                                    <option value="dropoff" {{ $donation->donation_type == 'dropoff' ? 'selected' : '' }}>Drop-off at Location</option>
+                                    <option value="">Select Colection Method</option>
+                                    <option value="direct" {{ $donation->donation_type == 'direct' ? 'selected' : '' }}>Self-Pickup</option>
+                                    <option value="dropoff" {{ $donation->donation_type == 'dropoff' ? 'selected' : '' }}>Home Delivery (within your area)</option>
                                 </select>
                                 @error('donation_type')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -396,7 +396,7 @@
 
                         <div class="mb-3">
                             <label for="pickup_location" class="form-label">
-                                <i class="fas fa-location-dot"></i>Pickup/Drop-off Location
+                                <i class="fas fa-location-dot"></i>Location Details
                             </label>
                             <input type="text" 
                                    class="form-control @error('pickup_location') is-invalid @enderror" 
