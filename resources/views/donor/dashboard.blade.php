@@ -287,7 +287,7 @@
             color: #2c3e50;
         }
         
-        .btn-edit {
+        .btn-view {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
@@ -296,15 +296,10 @@
             transition: all 0.3s ease;
         }
         
-        .btn-edit:hover {
+        .btn-view:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
             color: white;
-        }
-        
-        .btn-disabled {
-            pointer-events: none;
-            opacity: 0.5;
         }
         
         @media (max-width: 768px) {
@@ -474,7 +469,7 @@
             </a>
         </div>
 
-        {{-- Recent Donations Section (Updated) --}}
+        {{-- Recent Donations Section (Updated - Edit Action Removed) --}}
         <div class="section-card">
             <div class="section-header">
                 <h3 class="section-title">
@@ -536,27 +531,11 @@
                                             </span>
                                         </td>
                                         <td>
-                                            <div class="btn-group" role="group">
-                                                {{-- View Button --}}
-                                                <a href="{{ route('donor.donations.show', $donation) }}" 
-                                                class="btn btn-edit btn-sm" 
-                                                style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
-                                                {{-- Edit Button --}}
-                                                @if($donation->canBeEdited())
-                                                    <a href="{{ route('donor.donations.edit', $donation) }}" 
-                                                    class="btn btn-edit btn-sm">
-                                                        <i class="fas fa-edit"></i>
-                                                    </a>
-                                                @else
-                                                    <button class="btn btn-edit btn-sm btn-disabled" 
-                                                            disabled 
-                                                            title="{{ $donation->isExpired() ? 'Cannot edit expired donation' : 'Cannot edit reserved/completed donation' }}">
-                                                        <i class="fas fa-edit"></i>
-                                                    </button>
-                                                @endif
-                                            </div>
+                                            {{-- Only View Button - Edit Action Removed --}}
+                                            <a href="{{ route('donor.donations.show', $donation) }}" 
+                                               class="btn btn-view btn-sm">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
                                         </td>
                                     </tr>
                                 @endforeach

@@ -293,7 +293,7 @@
                                    class="form-control @error('best_before') is-invalid @enderror" 
                                    id="best_before" 
                                    name="best_before" required>
-                            <div class="form-help">When should this food be consumed by?</div>
+                                <br>
                             @error('best_before')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -317,13 +317,11 @@
                                     <option value="direct">Direct Pickup</option>
                                     <option value="dropoff">Drop-off at Location</option>
                                 </select>
-                                <div class="form-help">How will the food be transferred?</div>
                                 @error('donation_type')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
                             
-                            <!-- REMOVED: Contact Number Field - Using donor's registered phone number instead -->
                             
                         </div>
 
