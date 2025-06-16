@@ -264,8 +264,7 @@
                                     class="form-control @error('estimated_servings') is-invalid @enderror" 
                                     id="estimated_servings" 
                                     name="estimated_servings" 
-                                    required min="1" max="1000"
-                                    placeholder="How many people can this feed?">
+                                    required min="1" max="1000">
                                 <div class="form-help">Enter the approximate number of people this food can serve (or quantity for ingredients like rice, oil, etc.)</div>
                                 @error('estimated_servings')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -336,7 +335,7 @@
                                    class="form-control @error('pickup_location') is-invalid @enderror" 
                                    id="pickup_location" 
                                    name="pickup_location" required 
-                                   placeholder="Full address or specific location details">
+                                   placeholder="e.g. Masjid Uniten, Kajang">
                             @error('pickup_location')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
