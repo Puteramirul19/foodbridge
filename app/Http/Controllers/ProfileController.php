@@ -54,10 +54,13 @@ class ProfileController extends Controller
             'password.confirmed' => 'Password confirmation does not match.',
         ]);
 
+        // Format phone number - automatically add Malaysia country code (6)
+        $phoneNumber = $this->formatMalaysiaPhoneNumber($request->phone_number);
+
         // Update user information
         $user->name = $request->name;
         $user->email = $request->email;
-        $user->phone_number = $request->phone_number;
+        $user->phone_number = $phoneNumber; // Use formatted phone number
 
         // Only update password if provided
         if ($request->filled('password')) {
@@ -67,5 +70,25 @@ class ProfileController extends Controller
         $user->save();
 
         return redirect()->route('profile.show')->with('success', 'Profile updated successfully!');
+    }
+
+    /**
+     * Format Malaysian phone number to include country code
+     * 
+     * @param string $phoneNumber
+     * @return string
+     */
+    private function formatMalaysiaPhoneNumber($phoneNumber)
+    {
+        // Remove all non-numeric characters
+        $cleanNumber = preg_replace('/[^0-9]/', '', $phoneNumber);
+        
+        // If number already starts with 6 (already has country code), return as is
+        if (substr($cleanNumber, 0, 1) === '6') {
+            return $cleanNumber;
+        }
+        
+        // Just add 6 in front of the number (keep the 0)
+        return '6' . $cleanNumber;
     }
 }

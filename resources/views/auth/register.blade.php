@@ -60,6 +60,15 @@
             text-align: center;
             margin-top: 20px;
         }
+        .phone-hint {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+        .phone-hint i {
+            color: #28a745;
+            margin-right: 5px;
+        }
     </style>
 </head>
 <body>
@@ -69,17 +78,36 @@
             <h2>Register for FoodBridge</h2>
         </div>
         
+        {{-- Display validation errors --}}
+        @if($errors->any())
+            <div class="alert alert-danger">
+                <ul class="mb-0">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+        
         <form method="POST" action="{{ route('register') }}">
             @csrf
             
             <div class="mb-3">
                 <label for="name" class="form-label">Name</label>
-                <input type="text" class="form-control" id="name" name="name" required autofocus>
+                <input type="text" class="form-control @error('name') is-invalid @enderror" 
+                       id="name" name="name" value="{{ old('name') }}" required autofocus>
+                @error('name')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
             </div>
             
             <div class="mb-3">
                 <label for="email" class="form-label">Email address</label>
-                <input type="email" class="form-control" id="email" name="email" required>
+                <input type="email" class="form-control @error('email') is-invalid @enderror" 
+                       id="email" name="email" value="{{ old('email') }}" required>
+                @error('email')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
             </div>
             
             <div class="mb-3">
@@ -89,7 +117,11 @@
                     name="phone_number" 
                     required 
                     value="{{ old('phone_number') }}"
-                    placeholder="Enter your phone number">
+                    placeholder="012-345-6789">
+                <div class="phone-hint">
+                    <i class="fas fa-info-circle"></i>
+                    Malaysian format (e.g., 012-345-6789). Country code +6 will be added automatically.
+                </div>
                 @error('phone_number')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
@@ -97,20 +129,29 @@
             
             <div class="mb-3">
                 <label for="password" class="form-label">Password</label>
-                <input type="password" class="form-control" id="password" name="password" required>
+                <input type="password" class="form-control @error('password') is-invalid @enderror" 
+                       id="password" name="password" required>
+                @error('password')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
             </div>
             
             <div class="mb-3">
                 <label for="password_confirmation" class="form-label">Confirm Password</label>
-                <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" required>
+                <input type="password" class="form-control" id="password_confirmation" 
+                       name="password_confirmation" required>
             </div>
             
             <div class="mb-3">
                 <label for="role" class="form-label">Register as</label>
-                <select class="form-select" id="role" name="role" required>
-                    <option value="donor">Donor</option>
-                    <option value="recipient">Recipient</option>
+                <select class="form-select @error('role') is-invalid @enderror" id="role" name="role" required>
+                    <option value="">Choose your role</option>
+                    <option value="donor" {{ old('role') === 'donor' ? 'selected' : '' }}>Donor (I want to donate food)</option>
+                    <option value="recipient" {{ old('role') === 'recipient' ? 'selected' : '' }}>Recipient (I need food)</option>
                 </select>
+                @error('role')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
             </div>
             
             <button type="submit" class="btn btn-primary">Register</button>
@@ -126,5 +167,37 @@
 
     {{-- Bootstrap JS --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    {{-- Font Awesome for icons --}}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+    
+    {{-- Phone number formatting script --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const phoneInput = document.getElementById('phone_number');
+            
+            // Auto-format phone number as user types
+            phoneInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+                
+                // Format Malaysian phone number
+                if (value.length >= 3) {
+                    if (value.length <= 6) {
+                        value = value.replace(/(\d{3})(\d+)/, '$1-$2');
+                    } else {
+                        value = value.replace(/(\d{3})(\d{3})(\d+)/, '$1-$2-$3');
+                    }
+                }
+                
+                e.target.value = value;
+            });
+            
+            // Limit to reasonable phone number length
+            phoneInput.addEventListener('keypress', function(e) {
+                if (e.target.value.replace(/\D/g, '').length >= 11 && e.key !== 'Backspace' && e.key !== 'Delete') {
+                    e.preventDefault();
+                }
+            });
+        });
+    </script>
 </body>
 </html>

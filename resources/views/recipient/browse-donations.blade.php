@@ -448,6 +448,10 @@
                                             </span>
                                         </div>
                                         <div class="detail-item">
+                                            <i class="fas fa-user detail-icon"></i>
+                                            <span><strong>Donor:</strong> {{ $donation->donor->name }}</span>
+                                        </div>
+                                        <div class="detail-item">
                                             <i class="fas fa-phone detail-icon"></i>
                                             <span><strong>Contact:</strong> {{ $donation->donor->phone_number ?? 'No phone provided' }}</span>
                                         </div>
