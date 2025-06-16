@@ -440,15 +440,19 @@
                                 @endphp
                                 @if($reservation)
                                     <p class="mb-2">
-                                        <strong>Recipient:</strong><br>
+                                        <strong><i class="fas fa-user me-2"></i>Recipient:</strong><br>
                                         {{ $reservation->recipient->name }}
                                     </p>
                                     <p class="mb-2">
-                                        <strong>Pickup Date:</strong><br>
+                                        <strong><i class="fas fa-phone me-2"></i>Phone:</strong><br>
+                                        {{ $reservation->recipient->phone_number ?? 'No phone provided' }}
+                                    </p>
+                                    <p class="mb-2">
+                                        <strong><i class="fas fa-calendar me-2"></i>Pickup Date:</strong><br>
                                         {{ $reservation->pickup_date->format('d M Y') }}
                                     </p>
                                     <p class="mb-0">
-                                        <strong>Pickup Time:</strong><br>
+                                        <strong><i class="fas fa-clock me-2"></i>Pickup Time:</strong><br>
                                         {{ \Carbon\Carbon::parse($reservation->pickup_time)->format('g:i A') }}
                                     </p>
                                 @endif
