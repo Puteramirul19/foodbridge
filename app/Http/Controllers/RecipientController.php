@@ -68,6 +68,9 @@ class RecipientController extends Controller
      */
     public function browseDonations(Request $request)
     {
+        // Force update expired donations first
+        Donation::updateExpiredDonations();
+
         // Base query for available donations that are not expired
         $query = Donation::where('status', 'available')
                         ->where('best_before', '>=', Carbon::today());

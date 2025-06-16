@@ -224,7 +224,7 @@
                                         $today = \Carbon\Carbon::today();
                                         $isCompleted = $reservation->donation->status === 'completed';
                                         $isExpired = $bestBeforeDate->lt($today);
-                                        $isExpiringSoon = $bestBeforeDate->diffInDays($today, false) <= 1 && !$isExpired;
+                                        $isExpiringSoon = $bestBeforeDate->isSameDay($today) || ($bestBeforeDate->diffInDays($today, false) <= 1 && !$isExpired);
                                     @endphp
                                     <div>
                                         <strong>{{ $bestBeforeDate->format('d M Y') }}</strong>

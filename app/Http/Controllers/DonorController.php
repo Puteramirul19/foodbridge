@@ -52,14 +52,7 @@ class DonorController extends Controller
         ];
 
         // Get recent donations (last 5, excluding expired for better UX)
-        $recentDonations = $donations->whereNotIn('status', ['expired'])
-            ->sortByDesc('created_at')
-            ->take(5);
-
-        // If no active donations, show last 5 including expired
-        if ($recentDonations->isEmpty()) {
-            $recentDonations = $donations->sortByDesc('created_at')->take(5);
-        }
+        $recentDonations = $donations->sortByDesc('created_at')->take(5);
 
         // Get pending pickups (donations that are reserved and need completion)
         $pendingPickups = $donations->filter(function ($donation) {

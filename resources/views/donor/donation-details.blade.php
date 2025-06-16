@@ -361,9 +361,9 @@
                                 <td>
                                     @php 
                                         $bestBeforeDate = \Carbon\Carbon::parse($donation->best_before);
-                                        $daysLeft = $bestBeforeDate->diffInDays(now(), false);
-                                        $isExpired = $bestBeforeDate->lt(now());
-                                        $isExpiringSoon = $daysLeft <= 1 && !$isExpired;
+                                        $today = \Carbon\Carbon::today();
+                                        $isExpired = $bestBeforeDate->lt($today); // Use today(), not now()
+                                        $isExpiringSoon = $bestBeforeDate->isSameDay($today) || ($bestBeforeDate->diffInDays($today, false) <= 1 && !$isExpired);
                                     @endphp
                                     <strong>{{ $bestBeforeDate->format('d M Y') }}</strong>
                                     @if($donation->status === 'completed')

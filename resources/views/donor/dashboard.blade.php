@@ -474,7 +474,7 @@
             </a>
         </div>
 
-        {{-- Recent Donations Section (Separate Card) --}}
+        {{-- Recent Donations Section (Updated) --}}
         <div class="section-card">
             <div class="section-header">
                 <h3 class="section-title">
@@ -498,7 +498,6 @@
                                 <tr>
                                     <th>Food Description</th>
                                     <th>Category</th>
-                                    <th>Servings</th>
                                     <th>Best Before</th>
                                     <th>Status</th>
                                     <th>Actions</th>
@@ -506,13 +505,13 @@
                             </thead>
                             <tbody>
                                 @foreach($recentDonations as $donation)
-                                    <tr>
+                                    <tr class="{{ $donation->isExpired() ? 'table-secondary' : '' }}">
                                         <td>
                                             <div>
                                                 <strong>{{ Str::limit($donation->food_description, 40) }}</strong>
                                                 <small class="d-block text-muted mt-1">
-                                                    <i class="fas fa-calendar me-1"></i>
-                                                    Created {{ $donation->created_at->format('d M Y') }}
+                                                    <i class="fas fa-utensils me-1"></i>
+                                                    {{ $donation->estimated_servings }} servings
                                                 </small>
                                             </div>
                                         </td>
@@ -521,11 +520,10 @@
                                                 {!! \App\Http\Controllers\DonationController::getFormattedFoodCategory($donation->food_category) !!}
                                             </span>
                                         </td>
-                                        <td>{{ $donation->estimated_servings }}</td>
                                         <td>
                                             <div>
                                                 <i class="fas fa-calendar-alt me-2 text-primary"></i>
-                                                {{ \Carbon\Carbon::parse($donation->best_before)->format('d M Y') }}
+                                                <strong>{{ $donation->best_before->format('d M Y') }}</strong>
                                             </div>
                                         </td>
                                         <td>
@@ -539,6 +537,12 @@
                                         </td>
                                         <td>
                                             <div class="btn-group" role="group">
+                                                {{-- View Button --}}
+                                                <a href="{{ route('donor.donations.show', $donation) }}" 
+                                                class="btn btn-edit btn-sm" 
+                                                style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
                                                 {{-- Edit Button --}}
                                                 @if($donation->canBeEdited())
                                                     <a href="{{ route('donor.donations.edit', $donation) }}" 

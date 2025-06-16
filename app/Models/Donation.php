@@ -126,7 +126,10 @@ class Donation extends Model
     {
         $bestBefore = Carbon::parse($this->best_before);
         $today = Carbon::today();
-        return $bestBefore->gte($today) && $bestBefore->lte($today->copy()->addDay());
+        
+        // Consider expiring soon if it expires today or tomorrow
+        return $bestBefore->isSameDay($today) || 
+            ($bestBefore->gte($today) && $bestBefore->lte($today->copy()->addDay()));
     }
 
     /**

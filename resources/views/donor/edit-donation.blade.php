@@ -464,8 +464,25 @@
             // Set min date to today
             const today = new Date().toISOString().split('T')[0];
             bestBeforeInput.min = today;
+            
+            // Add event listener to prevent past dates
+            bestBeforeInput.addEventListener('change', function() {
+                const selectedDate = new Date(this.value);
+                const todayDate = new Date();
+                
+                // Remove timezone information for accurate comparison
+                selectedDate.setHours(0, 0, 0, 0);
+                todayDate.setHours(0, 0, 0, 0);
+                
+                // Check if selected date is before today
+                if (selectedDate < todayDate) {
+                    // Reset to today's date
+                    this.value = today;
+                    alert('Please select a date today or in the future.');
+                }
+            });
 
-            // Form enhancement
+            // Existing form enhancement code...
             const form = document.querySelector('form');
             form.addEventListener('submit', function(e) {
                 const submitButton = this.querySelector('button[type="submit"]');
