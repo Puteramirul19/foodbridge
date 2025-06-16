@@ -39,7 +39,7 @@ class DonationController extends Controller
      */
     public function store(Request $request)
     {
-        // Validate donation input - UPDATED with new categories
+        // Validate donation input - UPDATED: Removed contact_number validation
         $validator = Validator::make($request->all(), [
             'food_category' => 'required|in:fruits_vegetables,bread_rice,cooked_food,canned_bottled,milk_eggs,other',
             'food_description' => 'required|string|max:500',
@@ -47,7 +47,7 @@ class DonationController extends Controller
             'best_before' => 'required|date|after_or_equal:today',
             'donation_type' => 'required|in:direct,dropoff',
             'pickup_location' => 'required|string|max:255',
-            'contact_number' => 'required|string|max:20',
+            // REMOVED: contact_number validation - using donor's phone from profile
             'additional_instructions' => 'nullable|string|max:500'
         ]);
 
@@ -58,19 +58,19 @@ class DonationController extends Controller
                 ->withInput();
         }
 
-        // Create donation
+        // Create donation - UPDATED: Removed contact_number
         $donation = new Donation([
-            'user_id' => Auth::id(), // Ensure this matches the donor's ID
+            'user_id' => Auth::id(),
             'food_category' => $request->food_category,
             'food_description' => $request->food_description,
             'estimated_servings' => $request->estimated_servings,
             'best_before' => $request->best_before,
             'donation_type' => $request->donation_type,
             'pickup_location' => $request->pickup_location,
-            'contact_number' => $request->contact_number,
+            // REMOVED: contact_number - will use donor's phone_number from users table
             'additional_instructions' => $request->additional_instructions
         ]);
-        $donation->status = $donation->determineStatus(); // Determine status before saving
+        $donation->status = $donation->determineStatus();
         $donation->save();
 
         // Clear any cached dashboard data for the user
@@ -123,7 +123,7 @@ class DonationController extends Controller
         // Authorize the update action
         $this->authorize('update', $donation);
 
-        // Validate donation input - UPDATED with new categories
+        // Validate donation input - UPDATED: Removed contact_number validation
         $validator = Validator::make($request->all(), [
             'food_category' => 'required|in:fruits_vegetables,bread_rice,cooked_food,canned_bottled,milk_eggs,other',
             'food_description' => 'required|string|max:500',
@@ -131,7 +131,7 @@ class DonationController extends Controller
             'best_before' => 'required|date|after_or_equal:today',
             'donation_type' => 'required|in:direct,dropoff',
             'pickup_location' => 'required|string|max:255',
-            'contact_number' => 'required|string|max:20',
+            // REMOVED: contact_number validation
             'additional_instructions' => 'nullable|string|max:500'
         ]);
 
@@ -142,7 +142,7 @@ class DonationController extends Controller
                 ->withInput();
         }
 
-        // Update donation
+        // Update donation - UPDATED: Removed contact_number
         $donation->fill($request->only([
             'food_category',
             'food_description',
@@ -150,7 +150,7 @@ class DonationController extends Controller
             'best_before',
             'donation_type',
             'pickup_location',
-            'contact_number',
+            // REMOVED: contact_number
             'additional_instructions'
         ]));
 

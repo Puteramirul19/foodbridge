@@ -299,7 +299,7 @@
                                 <strong>Donor:</strong> {{ $reservation->donation->donor->name }}
                             </div>
                             <div>
-                                <strong>Contact:</strong> {{ $reservation->donation->contact_number }}
+                                <strong>Phone:</strong> {{ reservation->donation->donor->phone_number ?? 'No phone provided' }}
                             </div>
                         </div>
                     </div>

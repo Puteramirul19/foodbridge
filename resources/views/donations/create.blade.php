@@ -324,19 +324,8 @@
                                 @enderror
                             </div>
                             
-                            <div class="col-md-6 mb-3">
-                                <label for="contact_number" class="form-label">
-                                    <i class="fas fa-phone"></i>Contact Number
-                                </label>
-                                <input type="tel" 
-                                       class="form-control @error('contact_number') is-invalid @enderror" 
-                                       id="contact_number" 
-                                       name="contact_number" required 
-                                       placeholder="Your phone number">
-                                @error('contact_number')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
+                            <!-- REMOVED: Contact Number Field - Using donor's registered phone number instead -->
+                            
                         </div>
 
                         <div class="mb-3">

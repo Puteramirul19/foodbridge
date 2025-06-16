@@ -447,6 +447,10 @@
                                                 <span class="badge bg-info">{{ ucfirst($donation->donation_type) }}</span>
                                             </span>
                                         </div>
+                                        <div class="detail-item">
+                                            <i class="fas fa-phone detail-icon"></i>
+                                            <span><strong>Contact:</strong> {{ $donation->donor->phone_number ?? 'No phone provided' }}</span>
+                                        </div>
                                     </div>
                                     
                                     <button type="button" 

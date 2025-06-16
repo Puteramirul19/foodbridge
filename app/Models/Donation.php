@@ -22,7 +22,6 @@ class Donation extends Model
         'best_before',
         'donation_type',
         'pickup_location',
-        'contact_number',
         'additional_instructions',
         'status'
     ];

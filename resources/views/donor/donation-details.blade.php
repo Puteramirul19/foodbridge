@@ -410,7 +410,7 @@
                                 <th>Contact Number</th>
                                 <td>
                                     <i class="fas fa-phone me-2 text-primary"></i>
-                                    <strong>{{ $donation->contact_number }}</strong>
+                                    <strong>{{ $donation->phone_number ?? 'No phone provided' }}</strong>
                                 </td>
                             </tr>
                         </table>
