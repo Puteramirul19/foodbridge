@@ -222,20 +222,26 @@
                                     @php 
                                         $bestBeforeDate = \Carbon\Carbon::parse($reservation->donation->best_before);
                                         $today = \Carbon\Carbon::today();
-                                        $isCompleted = $reservation->donation->status === 'completed';
-                                        $isExpired = $bestBeforeDate->lt($today);
+                                        $isExpired = $bestBeforeDate->lt($today); // Use today(), not now()
                                         $isExpiringSoon = $bestBeforeDate->isSameDay($today) || ($bestBeforeDate->diffInDays($today, false) <= 1 && !$isExpired);
                                     @endphp
-                                    <div>
-                                        <strong>{{ $bestBeforeDate->format('d M Y') }}</strong>
-                                        @if($isCompleted)
-                                            {{-- No expiry message for completed donations --}}
-                                        @elseif($isExpired)
-                                            <small class="d-block text-danger fw-bold">(Expired)</small>
-                                        @elseif($isExpiringSoon)
-                                            <small class="d-block text-warning fw-bold">(Expiring Soon)</small>
-                                        @endif
-                                    </div>
+                                    <strong>{{ $bestBeforeDate->format('d M Y') }}</strong>
+                                    @if($reservation->donation->status === 'completed')
+                                        <div class="expiry-info" style="background: rgba(116, 185, 255, 0.15); border: 1px solid rgba(116, 185, 255, 0.3); color: #0984e3; padding: 10px 15px; border-radius: 10px; margin-top: 5px;">
+                                            <i class="fas fa-check-circle me-2"></i>
+                                            <strong>Completed</strong>
+                                        </div>
+                                    @elseif($isExpired)
+                                        <div class="expiry-info expiry-danger" style="background: rgba(220, 53, 69, 0.15); border: 1px solid rgba(220, 53, 69, 0.3); color: #721c24; padding: 10px 15px; border-radius: 10px; margin-top: 5px;">
+                                            <i class="fas fa-exclamation-triangle me-2"></i>
+                                            <strong>Expired</strong>
+                                        </div>
+                                    @elseif($isExpiringSoon)
+                                        <div class="expiry-info expiry-warning" style="background: rgba(255, 193, 7, 0.15); border: 1px solid rgba(255, 193, 7, 0.3); color: #856404; padding: 10px 15px; border-radius: 10px; margin-top: 5px;">
+                                            <i class="fas fa-clock me-2"></i>
+                                            <strong>Expiring Soon</strong>
+                                        </div>
+                                    @endif
                                 </td>
                             </tr>
                         </table>
