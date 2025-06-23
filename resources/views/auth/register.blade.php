@@ -10,20 +10,24 @@
     
     <style>
         body {
-            background-color: #FEFAE0;
+            background-image: url('{{ asset('Prototype.png') }}');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed; /* This ensures the background covers the entire page */
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
-            font-family: 'Arial', sans-serif;
         }
         .register-container {
-            background-color: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            background: rgba(255, 255, 255, 0.8); /* Semi-transparent white background for the form */
+            backdrop-filter: blur(10px); /* Adds a blur effect behind the form */
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
             padding: 40px;
             width: 100%;
-            max-width: 500px;
+            max-width: 450px;
         }
         .register-header {
             text-align: center;

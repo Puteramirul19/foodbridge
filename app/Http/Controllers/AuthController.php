@@ -23,7 +23,6 @@ class AuthController extends Controller
      */
     public function register(Request $request)
     {
-        // Validation rules
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
@@ -32,36 +31,34 @@ class AuthController extends Controller
             'role' => 'required|in:donor,recipient'
         ]);
 
-        // Check validation
         if ($validator->fails()) {
             return redirect()->back()
                 ->withErrors($validator)
                 ->withInput();
         }
 
-        // Create user
+        // Format phone number
+        $formattedPhoneNumber = $this->formatMalaysiaPhoneNumber($request->phone_number);
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'phone_number' => $request->phone_number,
+            'phone_number' => $formattedPhoneNumber, // Store formatted number
             'password' => Hash::make($request->password),
             'role' => $request->role
         ]);
 
-        // Login the user after registration
         Auth::login($user);
 
-        // Redirect based on role
         return redirect()->route($user->role . '.dashboard');
     }
 
-    // Helper function to clean phone number (if needed)
-    private function cleanPhoneNumber($phoneNumber) 
+    private function formatMalaysiaPhoneNumber($phoneNumber) 
     {
         // Remove any non-digit characters
         $cleanNumber = preg_replace('/[^0-9]/', '', $phoneNumber);
         
-        // If starts with 60, keep as is
+        // If number already starts with 6, keep as is
         if (substr($cleanNumber, 0, 2) === '60') {
             return $cleanNumber;
         }

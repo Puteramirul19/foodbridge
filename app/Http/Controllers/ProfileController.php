@@ -44,17 +44,9 @@ class ProfileController extends Controller
             ],
             'phone_number' => 'required|string|max:20',
             'password' => 'nullable|min:8|confirmed',
-        ], [
-            'name.required' => 'Name is required.',
-            'email.required' => 'Email is required.',
-            'email.email' => 'Please enter a valid email address.',
-            'email.unique' => 'This email is already taken.',
-            'phone_number.required' => 'Phone number is required.',
-            'password.min' => 'Password must be at least 8 characters.',
-            'password.confirmed' => 'Password confirmation does not match.',
         ]);
 
-        // Format phone number - automatically add Malaysia country code (6)
+        // Format phone number
         $phoneNumber = $this->formatMalaysiaPhoneNumber($request->phone_number);
 
         // Update user information
@@ -72,23 +64,27 @@ class ProfileController extends Controller
         return redirect()->route('profile.show')->with('success', 'Profile updated successfully!');
     }
 
-    /**
-     * Format Malaysian phone number to include country code
-     * 
-     * @param string $phoneNumber
-     * @return string
-     */
+    
     private function formatMalaysiaPhoneNumber($phoneNumber)
     {
         // Remove all non-numeric characters
         $cleanNumber = preg_replace('/[^0-9]/', '', $phoneNumber);
         
         // If number already starts with 6 (already has country code), return as is
-        if (substr($cleanNumber, 0, 1) === '6') {
+        if (substr($cleanNumber, 0, 2) === '60') {
             return $cleanNumber;
         }
         
-        // Just add 6 in front of the number (keep the 0)
-        return '6' . $cleanNumber;
+        // If starts with 0, replace with 60
+        if (substr($cleanNumber, 0, 1) === '0') {
+            return '60' . substr($cleanNumber, 1);
+        }
+        
+        // If starts with 1 and length is 9-10, prepend 60
+        if (substr($cleanNumber, 0, 1) === '1' && (strlen($cleanNumber) === 9 || strlen($cleanNumber) === 10)) {
+            return '60' . $cleanNumber;
+        }
+        
+        return $cleanNumber;
     }
 }
