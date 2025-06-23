@@ -406,7 +406,7 @@
                                 <td>{{ $donation->pickup_location }}</td>
                             </tr>
                             <tr>
-                                <th>Contact Number</th>
+                                <th>Your Number</th>
                                 <td>
                                     <i class="fas fa-phone me-2 text-primary"></i>
                                     <strong>{{ $donation->donor->phone_number ?? 'No phone provided' }}</strong>
@@ -475,7 +475,7 @@
                                         <i class="fas fa-info-circle me-2"></i>
                                         <small>
                                             @if($donation->isExpired())
-                                                This donation cannot be edited because it has expired.
+                                                This donation cannot be edited because it has completed/expired.
                                             @else
                                                 This donation cannot be edited because it has been {{ $donation->status }}.
                                             @endif
