@@ -340,7 +340,7 @@
             const cancelForms = document.querySelectorAll('.cancel-reservation-form');
             cancelForms.forEach(form => {
                 form.addEventListener('submit', function(e) {
-                    const confirmCancel = confirm('Are you sure you want to cancel this reservation?');
+                    const confirmCancel = confirm('Are you sure you want to cancel request?');
                     if (!confirmCancel) {
                         e.preventDefault();
                     }
