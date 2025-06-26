@@ -391,17 +391,6 @@
                                             by {{ $reservation->recipient->name }}
                                         </small>
                                     </div>
-                                    @if($isUrgent)
-                                        <span class="badge bg-danger">
-                                            @if($donation->isExpired())
-                                                Expired
-                                            @elseif($reservation->pickup_date->isToday())
-                                                Due Today
-                                            @else
-                                                Expires Soon
-                                            @endif
-                                        </span>
-                                    @endif
                                 </div>
                             </div>
                         @endforeach

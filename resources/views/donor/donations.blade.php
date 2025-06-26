@@ -377,7 +377,7 @@
                                         @if($showExpiryWarnings && $isExpired)
                                             <span class="text-danger fw-bold ms-2">(Expired)</span>
                                         @elseif($showExpiryWarnings && $isExpiringSoon)
-                                            <span class="text-warning fw-bold ms-2">(Expires Soon)</span>
+                                            <span class="text-warning fw-bold ms-2">(Expiring Soon)</span>
                                         @endif
                                     </span>
                                 </div>
@@ -388,11 +388,10 @@
                                 <div class="detail-item">
                                     <i class="fas fa-truck detail-icon"></i>
                                     <span><strong>Collection Method:</strong> 
-                                        <span class="badge bg-info">{{ ucfirst($donation->donation_type) }}</span>
+                                        <span class="badge bg-info">{{ $donation->donation_type == 'direct' ? 'Self-Pickup' : 'Home Delivery' }}</span>
                                     </span>
                                 </div>
                             </div>
-                            
                             {{-- Status Badge --}}
                             <div class="text-center mb-3">
                                 <span class="status-badge status-{{ $donation->status }}">

@@ -413,12 +413,6 @@
                                         $bestBeforeDate = \Carbon\Carbon::parse($donation->best_before);
                                         $daysLeft = $bestBeforeDate->diffInDays(now(), false);
                                     @endphp
-                                    @if($daysLeft <= 1)
-                                        <span class="urgency-badge">
-                                            <i class="fas fa-exclamation-triangle me-1"></i>
-                                            Urgent
-                                        </span>
-                                    @endif
                                 </div>
                                 
                                 <div class="card-body-custom">

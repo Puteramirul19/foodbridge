@@ -43,7 +43,7 @@ class ProfileController extends Controller
                 Rule::unique('users')->ignore($user->id)
             ],
             'phone_number' => 'required|string|max:20',
-            'password' => 'nullable|min:8|confirmed',
+            'password' => 'nullable|min:8|max:24|confirmed',
         ]);
 
         // Format phone number

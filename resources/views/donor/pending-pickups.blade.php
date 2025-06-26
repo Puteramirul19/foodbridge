@@ -363,7 +363,7 @@
                         $urgencyText = 'Expired';
                     } elseif ($isDueToday || $isUrgent) {
                         $cardClass = 'urgent';
-                        $urgencyText = $isDueToday ? 'Due Today' : 'Expires Soon';
+                        $urgencyText = $isDueToday ? 'Due Today' : 'Expiring Soon';
                     }
                 @endphp
                 
@@ -398,7 +398,7 @@
                                             @if($isExpired)
                                                 <span class="text-danger fw-bold ms-2">(Expired)</span>
                                             @elseif($isUrgent)
-                                                <span class="text-warning fw-bold ms-2">(Expires Soon)</span>
+                                                <span class="text-warning fw-bold ms-2">(Expiring Soon)</span>
                                             @endif
                                         </span>
                                     </div>
@@ -481,7 +481,6 @@
                                                     onclick="return confirm('Confirm that {{ $reservation->recipient->name }} has successfully picked up this donation?')">
                                                 <i class="fas fa-check-circle me-2"></i>
                                                 <strong>Confirm Pickup</strong>
-                                                <br><small>Mark as completed</small>
                                             </button>
                                         </form>
                                         
@@ -492,7 +491,6 @@
                                                     onclick="return confirm('Mark this donation as not collected by {{ $reservation->recipient->name }}?')">
                                                 <i class="fas fa-times-circle me-2"></i>
                                                 <strong>Not Collected</strong>
-                                                <br><small>Cancel reservation</small>
                                             </button>
                                         </form>
                                     </div>
